@@ -19,14 +19,41 @@ extension UIColor {
     
 }
 
-final class ImageProvider {
-    static func loadImage(named name: String) -> UIImage? {
-        let bundle = Bundle.module
-        return UIImage(named: name, in: bundle, compatibleWith: nil)
+enum Font {
+    case pretendardBold
+    case pretendardSemiBold
+    case pretendardRegular
+    
+    var fontName: String {
+        switch self {
+        case .pretendardBold: return "Pretendard-Bold"
+        case .pretendardSemiBold: return "Pretendard-SemiBold"
+        case .pretendardRegular: return "Pretendard-Regular"
+        }
+    }
+    
+    var familyName: String { "Pretendard" }
+    
+    func uiFont(ofSize size: CGFloat) -> UIFont {
+        if (UIFont.fontNames(forFamilyName: self.familyName).count == 0) {
+            FontProvider.registerFont(withName: "Pretendard-Bold")
+            FontProvider.registerFont(withName: "Pretendard-Regular")
+            FontProvider.registerFont(withName: "Pretendard-SemiBold")
+        }
+        switch self {
+        case .pretendardBold:
+            return UIFont(name: fontName, size: size) ?? .systemFont(ofSize: size, weight: .bold)
+        case .pretendardSemiBold:
+            return UIFont(name: fontName, size: size) ?? .systemFont(ofSize: size, weight: .semibold)
+        case .pretendardRegular:
+            return UIFont(name: fontName, size: size) ?? .systemFont(ofSize: size, weight: .regular)
+        }
+        
     }
 }
 
 final class FontProvider {
+    
     static func registerFont(withName name: String) {
         let bundle = Bundle.module
         guard let url = bundle.url(forResource: name, withExtension: "otf"),
@@ -37,5 +64,12 @@ final class FontProvider {
         }
         var error: Unmanaged<CFError>?
         CTFontManagerRegisterGraphicsFont(font, &error)
+    }
+}
+
+final class ImageProvider {
+    static func loadImage(named name: String) -> UIImage? {
+        let bundle = Bundle.module
+        return UIImage(named: name, in: bundle, compatibleWith: nil)
     }
 }

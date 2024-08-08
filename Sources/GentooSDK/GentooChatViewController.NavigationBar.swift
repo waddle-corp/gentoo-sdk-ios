@@ -13,14 +13,14 @@ extension GentooChatViewController {
         
         let backButton: UIButton = {
             let button = UIButton(type: .system)
-            button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+            button.setImage(ImageProvider.loadImage(named: "icn_back"), for: .normal)
             button.tintColor = UIColor(hexString: "666666")
             return button
         }()
         
         private let iconView: UIImageView = {
             let imageView = UIImageView()
-            imageView.image = UIImage(named: "gentoo")
+            imageView.image = ImageProvider.loadImage(named: "gentoo")
             imageView.contentMode = .scaleAspectFill
             imageView.clipsToBounds = true
             imageView.layer.cornerRadius = 18
@@ -32,7 +32,7 @@ extension GentooChatViewController {
         private let titleLabel: UILabel = {
             let label = UILabel()
             label.text = "젠투"
-            label.font = UIFont.boldSystemFont(ofSize: 15)
+            label.font = Font.pretendardBold.uiFont(ofSize: 15)
             label.textColor = UIColor(hexString: "222222")
             return label
         }()
@@ -40,7 +40,7 @@ extension GentooChatViewController {
         private let subtitleLabel: UILabel = {
             let label = UILabel()
             label.text = "술 전문가"
-            label.font = UIFont.systemFont(ofSize: 12)
+            label.font = Font.pretendardRegular.uiFont(ofSize: 12)
             label.textColor = UIColor(hexString: "666666")
             return label
         }()

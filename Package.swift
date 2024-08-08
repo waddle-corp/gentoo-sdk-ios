@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "GentooSDK",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v12)],
     products: [
         .library(
             name: "GentooSDK",

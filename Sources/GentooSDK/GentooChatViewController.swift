@@ -20,10 +20,7 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         setupNavigationBar()
         setupWebView()
         setupActivityIndicator()
-        
-        Task {
-            try await self.loadWebPage()
-        }
+        loadWebPage()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -66,7 +63,12 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func setupActivityIndicator() {
-        activityIndicator = UIActivityIndicatorView(style: .medium)
+        
+        if #available(iOS 13.0, *) {
+            activityIndicator = UIActivityIndicatorView(style: .medium)
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         activityIndicator.hidesWhenStopped = true
         
         view.addSubview(activityIndicator)
@@ -78,14 +80,22 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         ])
     }
     
-    private func loadWebPage() async throws {
+    private func loadWebPage() {
         // TODO: Remove this later (for test purpose only)
-        let productInfo = try await fetchExampleProduct()
-        
-        if let url = constructURL(productInfo: productInfo) {
-            let request = URLRequest(url: url)
-            webView.load(request)
+        try? self.fetchExampleProduct { result in
+            switch result {
+            case let .success(info):
+                if let url = self.constructURL(productInfo: info) {
+                    let request = URLRequest(url: url)
+                    DispatchQueue.main.async {
+                        self.webView.load(request)
+                    }
+                }
+            case let .failure(error):
+                print(error.localizedDescription)
+            }
         }
+        
     }
     
     private func constructURL(productInfo: String) -> URL? {
@@ -104,7 +114,7 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         return components.url
     }
     
-    private func fetchExampleProduct() async throws -> String {
+    private func fetchExampleProduct(completionHandler: @escaping (Result<String, Error>) -> Void) throws {
         var request = URLRequest(url: URL(string: "https://hg5eey52l4.execute-api.ap-northeast-2.amazonaws.com/dev/recommend")!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -116,8 +126,18 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         ]
         let data = try JSONSerialization.data(withJSONObject: body)
         request.httpBody = data
-        let result = try await URLSession.shared.data(for: request)
-        return String(data: result.0, encoding: .utf8)!
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            if let error {
+                completionHandler(.failure(error))
+            } else if let data {
+                completionHandler(.success(String(data: data, encoding: .utf8)!))
+            } else {
+                completionHandler(.failure(URLError(.unknown)))
+            }
+        }
+        
+        task.resume()
     }
     
     @objc private func backButtonTapped() {

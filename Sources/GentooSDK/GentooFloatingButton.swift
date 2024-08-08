@@ -83,7 +83,7 @@ open class GentooFloatingButton: UIControl {
     
     private let icon: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "gentoo"), for: .normal)
+        button.setImage(ImageProvider.loadImage(named: "gentoo"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = Constants.buttonContainerCornerRadius
         button.clipsToBounds = true
@@ -109,7 +109,7 @@ open class GentooFloatingButton: UIControl {
     private let label: UILabel = {
         let label = UILabel()
         label.text = "술 전문가 젠투에게 추천 받아보세요!"
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = Font.pretendardSemiBold.uiFont(ofSize: 14)
         label.textColor = .darkGray
         label.alpha = 0
         label.translatesAutoresizingMaskIntoConstraints = false
