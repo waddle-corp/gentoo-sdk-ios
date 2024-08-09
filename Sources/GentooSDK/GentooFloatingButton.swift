@@ -108,7 +108,7 @@ open class GentooFloatingButton: UIControl {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.text = "술 전문가 젠투에게 추천 받아보세요!"
+        label.text = "술 전문가 젠투에게 술 추천 받아보세요!"
         label.font = Font.pretendardSemiBold.uiFont(ofSize: 14)
         label.textColor = .darkGray
         label.alpha = 0
