@@ -1,0 +1,15 @@
+{
+  "originHash" : "9285571a489e564f55c19583e248d988bf9834c5f35789fbe51db5cbe61d4d28",
+  "pins" : [
+    {
+      "identity" : "gentoo-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/waddle-corp/gentoo-sdk-ios",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e9c222494266c178cfc621ab0763e9a30d426b7a"
+      }
+    }
+  ],
+  "version" : 3
+}
