@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 
-public class GentooChatViewController: UIViewController, WKNavigationDelegate {
+open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
     private let navigationBar = NavigationBar()
     private var activityIndicator: UIActivityIndicatorView!
@@ -63,13 +63,13 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func setupActivityIndicator() {
-        
         if #available(iOS 13.0, *) {
             activityIndicator = UIActivityIndicatorView(style: .medium)
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
         
         view.addSubview(activityIndicator)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
@@ -95,11 +95,9 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
                 print(error.localizedDescription)
             }
         }
-        
     }
     
     private func constructURL(productInfo: String) -> URL? {
-        
         let clientId = "dlst"
         let userId = "432883135"
         

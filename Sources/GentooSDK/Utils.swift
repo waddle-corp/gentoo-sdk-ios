@@ -53,7 +53,6 @@ enum Font {
 }
 
 final class FontProvider {
-    
     static func registerFont(withName name: String) {
         let bundle = Bundle.module
         guard let url = bundle.url(forResource: name, withExtension: "otf"),
