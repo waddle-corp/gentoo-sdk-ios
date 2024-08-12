@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 import WebKit
 
 open class GentooChatViewController: UIViewController, WKNavigationDelegate {
@@ -157,5 +158,20 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         activityIndicator.stopAnimating()
+    }
+}
+
+
+@available(iOS 13.0, *)
+public struct GentooChatView: UIViewControllerRepresentable {
+    
+    public init() {}
+    
+    public func makeUIViewController(context: Context) -> GentooChatViewController {
+        GentooChatViewController()
+    }
+
+    public func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {
+        
     }
 }

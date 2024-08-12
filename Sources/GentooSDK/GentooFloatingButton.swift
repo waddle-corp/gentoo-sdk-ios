@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 open class GentooFloatingButton: UIControl {
     
@@ -269,3 +270,60 @@ open class GentooFloatingButton: UIControl {
     
 }
 
+
+@available(iOS 13.0, *)
+public struct GentooFloatingButtonView: View {
+    
+    public var action: () -> Void
+    
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
+    
+    public var body: some View {
+        InnerView(action: action)
+            .frame(width: 300, height: 54)
+    }
+    
+}
+
+@available(iOS 13.0, *)
+private extension GentooFloatingButtonView {
+    
+    struct InnerView: UIViewRepresentable {
+        
+        var action: () -> Void
+        
+        func makeUIView(context: Context) -> GentooFloatingButton {
+            let button = GentooFloatingButton()
+            button.addTarget(context.coordinator, action: #selector(Coordinator.onTap), for: .touchUpInside)
+            return button
+        }
+
+        func updateUIView(_ uiView: GentooFloatingButton, context: Context) {
+            
+        }
+        
+        @available(iOS 16.0, *)
+        func sizeThatFits(_ proposal: ProposedViewSize, uiView: GentooFloatingButton, context: Context) -> CGSize? {
+            return CGSize(width: 300, height: 54)
+        }
+        
+        func makeCoordinator() -> Coordinator {
+            Coordinator(self)
+        }
+        
+        class Coordinator: NSObject {
+            var parent: InnerView
+            
+            init(_ parent: InnerView) {
+                self.parent = parent
+            }
+            
+            @objc func onTap() {
+                self.parent.action()
+            }
+        }
+    }
+    
+}
