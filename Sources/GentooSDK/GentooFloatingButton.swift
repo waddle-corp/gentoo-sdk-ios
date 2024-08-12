@@ -141,22 +141,23 @@ open class GentooFloatingButton: UIControl {
         setupViews()
     }
     
-    open override func didMoveToWindow() {
-        super.didMoveToWindow()
-        guard window != nil else { return }
+    open override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: newWindow)
         
         expandWorkItem?.cancel()
         collapseWorkItem?.cancel()
         
-        expandWorkItem = DispatchWorkItem { [weak self] in
-            self?.expandButton()
+        if newWindow != nil {
+            let now = DispatchTime.now()
+            expandWorkItem = DispatchWorkItem { [weak self] in
+                self?.expandButton()
+            }
+            collapseWorkItem = DispatchWorkItem { [weak self] in
+                self?.collapseButton()
+            }
+            DispatchQueue.main.asyncAfter(deadline: now + 1, execute: expandWorkItem!)
+            DispatchQueue.main.asyncAfter(deadline: now + 3, execute: collapseWorkItem!)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: expandWorkItem!)
-        
-        collapseWorkItem = DispatchWorkItem { [weak self] in
-            self?.collapseButton()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: collapseWorkItem!)
     }
     
     private func setupViews() {
