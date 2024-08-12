@@ -194,8 +194,8 @@ open class GentooFloatingButton: UIControl {
         
         NSLayoutConstraint.activate([
             
-            background.widthAnchor.constraint(greaterThanOrEqualToConstant: Constants.minimumWidth),
-            background.heightAnchor.constraint(greaterThanOrEqualToConstant: Constants.minimumHeight),
+            background.widthAnchor.constraint(equalToConstant: Constants.minimumWidth),
+            background.heightAnchor.constraint(equalToConstant: Constants.minimumHeight),
             background.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             background.bottomAnchor.constraint(equalTo: self.bottomAnchor),
 
