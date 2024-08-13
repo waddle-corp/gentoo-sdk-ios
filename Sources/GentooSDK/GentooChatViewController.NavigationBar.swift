@@ -21,6 +21,7 @@ extension GentooChatViewController {
         private let iconView: UIImageView = {
             let imageView = UIImageView()
             imageView.image = ImageProvider.loadImage(named: "gentoo")
+            imageView.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
             imageView.contentMode = .scaleAspectFill
             imageView.clipsToBounds = true
             imageView.layer.cornerRadius = 18
