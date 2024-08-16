@@ -11,14 +11,25 @@ import WebKit
 
 open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
-    private let navigationBar = NavigationBar()
+    private var navigationBar: NavigationBar?
+    private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
     private var webView: WKWebView!
+    
+    private var isSheet: Bool {
+        return navigationController?.viewControllers.firstIndex(of: self) == nil
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupNavigationBar()
+        
+        if isSheet {
+            setupSheetTopBar()
+        } else {
+            setupNavigationBar()
+        }
+        
         setupWebView()
         setupActivityIndicator()
         loadWebPage()
@@ -34,10 +45,26 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
+    private func setupSheetTopBar() {
+        let sheetTopBar = SheetTopBar()
+        self.sheetTopBar = sheetTopBar
+        view.addSubview(sheetTopBar)
+        sheetTopBar.closeButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        sheetTopBar.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sheetTopBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sheetTopBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sheetTopBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            sheetTopBar.heightAnchor.constraint(equalToConstant: 48)
+        ])
+    }
+    
     private func setupNavigationBar() {
+        let navigationBar = NavigationBar()
+        self.navigationBar = navigationBar
         view.addSubview(navigationBar)
         navigationBar.backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
-        
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -58,7 +85,7 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+            webView.topAnchor.constraint(equalTo: isSheet ? sheetTopBar!.bottomAnchor : navigationBar!.bottomAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -140,10 +167,10 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     @objc private func backButtonTapped() {
-        if let navigationController = navigationController {
-            navigationController.popViewController(animated: true)
-        } else {
+        if isSheet {
             dismiss(animated: true, completion: nil)
+        } else {
+            navigationController?.popViewController(animated: true)
         }
     }
     
