@@ -157,7 +157,7 @@ open class GentooFloatingButton: UIControl {
                 self?.collapseButton()
             }
             DispatchQueue.main.asyncAfter(deadline: now + 1, execute: expandWorkItem!)
-            DispatchQueue.main.asyncAfter(deadline: now + 3, execute: collapseWorkItem!)
+            DispatchQueue.main.asyncAfter(deadline: now + 4, execute: collapseWorkItem!)
         }
     }
     
