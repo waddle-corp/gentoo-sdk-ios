@@ -72,21 +72,22 @@ extension GentooChatViewController: UIViewControllerTransitioningDelegate {
 class CustomPresentationController: UIPresentationController {
     
     private var dimmingView: UIView!
+    private var tapGestureRecognizer: UITapGestureRecognizer!
     
-    private var expandedFrame: CGRect {
+    var expandedFrame: CGRect {
         guard let containerView = containerView else { return .zero }
         let topSafeAreaInset = containerView.safeAreaInsets.top
         return CGRect(x: 0, y: topSafeAreaInset, width: containerView.bounds.width, height: containerView.bounds.height - topSafeAreaInset)
     }
     
-    private var collapsedFrame: CGRect {
+    var collapsedFrame: CGRect {
         guard let containerView = containerView else { return .zero }
         let size = presentedViewController.preferredContentSize
         let origin = CGPoint(x: 0, y: containerView.bounds.height - size.height)
         return CGRect(origin: origin, size: size)
     }
     
-    private var isExpanded = false
+    var isExpanded = false
     
     override var frameOfPresentedViewInContainerView: CGRect {
         return isExpanded ? expandedFrame : collapsedFrame
@@ -97,6 +98,10 @@ class CustomPresentationController: UIPresentationController {
         let dimmingView = UIView(frame: containerView.bounds)
         dimmingView.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
         dimmingView.alpha = 0.0
+        
+        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dimmingViewTapped))
+        dimmingView.addGestureRecognizer(tapGestureRecognizer)
+        
         containerView.addSubview(dimmingView)
 
         presentedViewController.transitionCoordinator?.animate(alongsideTransition: { _ in
@@ -111,6 +116,12 @@ class CustomPresentationController: UIPresentationController {
             }, completion: { _ in
                 dimmingView.removeFromSuperview()
             })
+        }
+    }
+    
+    @objc private func dimmingViewTapped() {
+        if !isExpanded {
+            presentedViewController.dismiss(animated: true, completion: nil)
         }
     }
     

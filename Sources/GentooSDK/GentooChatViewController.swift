@@ -201,6 +201,15 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         case .changed:
             if translation.y > 0 {
                 view.transform = CGAffineTransform(translationX: 0, y: translation.y)
+            } else {
+                let newY = customPresentationController.collapsedFrame.origin.y + translation.y
+                let newHeight = customPresentationController.containerView!.bounds.height - newY
+                customPresentationController.presentedView?.frame = CGRect(
+                    x: 0,
+                    y: newY,
+                    width: view.bounds.width,
+                    height: newHeight
+                )
             }
         case .ended:
             let velocity = gesture.velocity(in: view)
@@ -212,6 +221,7 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
             } else {
                 UIView.animate(withDuration: 0.3) {
                     self.view.transform = .identity
+                    customPresentationController.presentedView?.frame = customPresentationController.frameOfPresentedViewInContainerView
                 }
             }
         default:
