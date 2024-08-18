@@ -61,3 +61,73 @@ extension GentooChatViewController {
     
 }
 
+
+extension GentooChatViewController: UIViewControllerTransitioningDelegate {
+
+    public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+        return CustomPresentationController(presentedViewController: presented, presenting: presenting)
+    }
+}
+
+class CustomPresentationController: UIPresentationController {
+    
+    private var dimmingView: UIView!
+    
+    private var expandedFrame: CGRect {
+        guard let containerView = containerView else { return .zero }
+        let topSafeAreaInset = containerView.safeAreaInsets.top
+        return CGRect(x: 0, y: topSafeAreaInset, width: containerView.bounds.width, height: containerView.bounds.height - topSafeAreaInset)
+    }
+    
+    private var collapsedFrame: CGRect {
+        guard let containerView = containerView else { return .zero }
+        let size = presentedViewController.preferredContentSize
+        let origin = CGPoint(x: 0, y: containerView.bounds.height - size.height)
+        return CGRect(origin: origin, size: size)
+    }
+    
+    private var isExpanded = false
+    
+    override var frameOfPresentedViewInContainerView: CGRect {
+        return isExpanded ? expandedFrame : collapsedFrame
+    }
+
+    override func presentationTransitionWillBegin() {
+        guard let containerView = containerView else { return }
+        let dimmingView = UIView(frame: containerView.bounds)
+        dimmingView.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
+        dimmingView.alpha = 0.0
+        containerView.addSubview(dimmingView)
+
+        presentedViewController.transitionCoordinator?.animate(alongsideTransition: { _ in
+            dimmingView.alpha = 1.0
+        }, completion: nil)
+    }
+
+    override func dismissalTransitionWillBegin() {
+        if let dimmingView = containerView?.subviews.first {
+            presentedViewController.transitionCoordinator?.animate(alongsideTransition: { _ in
+                dimmingView.alpha = 0.0
+            }, completion: { _ in
+                dimmingView.removeFromSuperview()
+            })
+        }
+    }
+    
+    func expandToFullScreen() {
+        guard let containerView = containerView else { return }
+        isExpanded = true
+        UIView.animate(withDuration: 0.3) {
+            self.presentedView?.frame = self.expandedFrame
+            containerView.layoutIfNeeded()
+        }
+    }
+    
+    func collapseToOriginalSize() {
+        isExpanded = false
+        UIView.animate(withDuration: 0.3) {
+            self.presentedView?.frame = self.collapsedFrame
+        }
+    }
+}
+

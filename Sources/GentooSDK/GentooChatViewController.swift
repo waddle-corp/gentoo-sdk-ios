@@ -20,6 +20,17 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         return navigationController?.viewControllers.firstIndex(of: self) == nil
     }
     
+    public init() {
+        super.init(nibName: nil, bundle: nil)
+        self.modalPresentationStyle = .custom
+        self.transitioningDelegate = self
+        self.preferredContentSize = CGSize(width: UIScreen.main.bounds.width, height: 535)
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -52,12 +63,18 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         sheetTopBar.closeButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         sheetTopBar.translatesAutoresizingMaskIntoConstraints = false
         
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        sheetTopBar.addGestureRecognizer(panGesture)
+        
         NSLayoutConstraint.activate([
             sheetTopBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sheetTopBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             sheetTopBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sheetTopBar.heightAnchor.constraint(equalToConstant: 48)
         ])
+        
+        view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
     }
     
     private func setupNavigationBar() {
@@ -171,6 +188,34 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
             dismiss(animated: true, completion: nil)
         } else {
             navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        
+        guard let customPresentationController = self.presentationController as? CustomPresentationController else { return }
+        
+        let translation = gesture.translation(in: view)
+        
+        switch gesture.state {
+        case .changed:
+            if translation.y > 0 {
+                view.transform = CGAffineTransform(translationX: 0, y: translation.y)
+            }
+        case .ended:
+            let velocity = gesture.velocity(in: view)
+            
+            if translation.y > 200 || velocity.y > 500 {
+                dismiss(animated: true, completion: nil)
+            } else if translation.y < -100 || velocity.y < -500 {
+                customPresentationController.expandToFullScreen()
+            } else {
+                UIView.animate(withDuration: 0.3) {
+                    self.view.transform = .identity
+                }
+            }
+        default:
+            break
         }
     }
     
