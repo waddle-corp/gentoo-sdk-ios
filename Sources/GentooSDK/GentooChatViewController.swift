@@ -44,6 +44,7 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         setupWebView()
         setupActivityIndicator()
         loadWebPage()
+        
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -98,6 +99,11 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         view.addSubview(webView)
         
         webView.translatesAutoresizingMaskIntoConstraints = false
+#if DEBUG
+        if #available(iOS 16.4, *) {
+            webView.isInspectable = true
+        }
+#endif
         
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -143,6 +149,9 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func constructURL(productInfo: String) -> URL? {
+        
+        return URL(string: "https://demo.gentooai.com/demo/288335308/demo_ck")!
+        
         let clientId = "dlst"
         let userId = "432883135"
         
@@ -204,10 +213,10 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
             } else {
                 let newY = customPresentationController.collapsedFrame.origin.y + translation.y
                 let newHeight = customPresentationController.containerView!.bounds.height - newY
-                customPresentationController.presentedView?.frame = CGRect(
+                self.view.frame = CGRect(
                     x: 0,
                     y: newY,
-                    width: view.bounds.width,
+                    width: self.view.bounds.width,
                     height: newHeight
                 )
             }
@@ -221,7 +230,7 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
             } else {
                 UIView.animate(withDuration: 0.3) {
                     self.view.transform = .identity
-                    customPresentationController.presentedView?.frame = customPresentationController.frameOfPresentedViewInContainerView
+                    self.view.frame = customPresentationController.frameOfPresentedViewInContainerView
                 }
             }
         default:

@@ -72,12 +72,14 @@ extension GentooChatViewController: UIViewControllerTransitioningDelegate {
 class CustomPresentationController: UIPresentationController {
     
     private var dimmingView: UIView!
+    private var bottomSafeAreaBackgroundView: UIView!
     private var tapGestureRecognizer: UITapGestureRecognizer!
     
     var expandedFrame: CGRect {
         guard let containerView = containerView else { return .zero }
         let topSafeAreaInset = containerView.safeAreaInsets.top
-        return CGRect(x: 0, y: topSafeAreaInset, width: containerView.bounds.width, height: containerView.bounds.height - topSafeAreaInset)
+        let bottomSafeAreaInset = containerView.safeAreaInsets.bottom
+        return CGRect(x: 0, y: topSafeAreaInset, width: containerView.bounds.width, height: containerView.bounds.height - topSafeAreaInset - bottomSafeAreaInset)
     }
     
     var collapsedFrame: CGRect {
@@ -103,6 +105,17 @@ class CustomPresentationController: UIPresentationController {
         dimmingView.addGestureRecognizer(tapGestureRecognizer)
         
         containerView.addSubview(dimmingView)
+        
+        bottomSafeAreaBackgroundView = UIView()
+        bottomSafeAreaBackgroundView.backgroundColor = .white
+        containerView.addSubview(bottomSafeAreaBackgroundView)
+        bottomSafeAreaBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bottomSafeAreaBackgroundView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            bottomSafeAreaBackgroundView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            bottomSafeAreaBackgroundView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            bottomSafeAreaBackgroundView.heightAnchor.constraint(equalToConstant: containerView.safeAreaInsets.bottom)
+        ])
 
         presentedViewController.transitionCoordinator?.animate(alongsideTransition: { _ in
             dimmingView.alpha = 1.0
@@ -117,6 +130,7 @@ class CustomPresentationController: UIPresentationController {
                 dimmingView.removeFromSuperview()
             })
         }
+        bottomSafeAreaBackgroundView.removeFromSuperview()
     }
     
     @objc private func dimmingViewTapped() {
