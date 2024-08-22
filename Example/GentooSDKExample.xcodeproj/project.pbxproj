@@ -17,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CE7D49702C6A29FA0034EDAA /* gentoo-sdk-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "gentoo-sdk-ios"; path = ..; sourceTree = "<group>"; };
 		CED598392C62451D00B024F2 /* GentooSDKExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GentooSDKExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CED5983C2C62451D00B024F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CED5983E2C62451D00B024F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +50,7 @@
 		CED598302C62451D00B024F2 = {
 			isa = PBXGroup;
 			children = (
+				CE7D49702C6A29FA0034EDAA /* gentoo-sdk-ios */,
 				CED5983B2C62451D00B024F2 /* GentooSDKExample */,
 				CED5983A2C62451D00B024F2 /* Products */,
 				CEC6C8952C6506B00001E9CB /* Frameworks */,
@@ -311,6 +313,7 @@
 				DEVELOPMENT_TEAM = 3L9A5724Q3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GentooSDKExample/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -339,6 +342,7 @@
 				DEVELOPMENT_TEAM = 3L9A5724Q3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GentooSDKExample/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

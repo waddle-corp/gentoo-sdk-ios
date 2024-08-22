@@ -10,35 +10,68 @@ import SwiftUI
 
 open class GentooFloatingButton: UIControl {
     
-    private struct Constants {
-        static let buttonContainerCornerRadius: CGFloat = 27
-        static let buttonContainerExpandedCornerRadius: CGFloat = 25
-        static let floatingButtonWidthCollapsed: CGFloat = 54
-        static let floatingButtonHeightCollapsed: CGFloat = 54
-        static let floatingButtonWidthExpanded: CGFloat = 40
-        static let floatingButtonHeightExpanded: CGFloat = 40
-        static let buttonContainerWidthCollapsed: CGFloat = 54
-        static let buttonContainerHeightCollapsed: CGFloat = 54
-        static let buttonContainerWidthExpanded: CGFloat = 300
-        static let buttonContainerHeightExpanded: CGFloat = 50
-        static let floatingButtonTrailingCollapsed: CGFloat = 0
-        static let floatingButtonTrailingExpanded: CGFloat = -8
-        static let labelLeading: CGFloat = 24
-        static let minimumWidth: CGFloat = 300
-        static let minimumHeight: CGFloat = 54
-        static let shadowPathExpanded: CGPath = .init(
-            roundedRect: .init(origin: .zero, size: .init(width: 300, height: 50)),
-            cornerWidth: 25,
-            cornerHeight: 25,
-            transform: nil
-        )
-        static let shadowPathCollapsed: CGPath = .init(
-            roundedRect: .init(origin: .zero, size: .init(width: 54, height: 54)),
-            cornerWidth: 27,
-            cornerHeight: 27,
-            transform: nil
-        )
-        static let animationDuration: TimeInterval = 0.3
+    public enum ContentType {
+        case normal
+        case recommendation
+    }
+    
+    public private(set) var contentType: ContentType = .normal
+    
+    public func setContentType(_ type: ContentType) {
+        self.contentType = type
+        if type == .recommendation {
+            triggerAnimation()
+        }
+    }
+    
+    private var comment: GentooSDK.Comment? {
+        didSet {
+            guard oldValue != comment else { return }
+            triggerAnimation()
+        }
+    }
+    
+    public var itemId: String? {
+        didSet {
+            loadCommentIfNeeded()
+        }
+    }
+    
+    private func loadCommentIfNeeded() {
+        collapseAndResetComment(completionHandler: {
+            
+            guard let itemId = self.itemId else { return }
+            
+            if let userId = GentooSDK.shared.userId {
+                self.loadComment(itemId: itemId, userId: userId)
+            } else {
+                GentooSDK.shared.fetchUserID { result in
+                    switch result {
+                    case .success(let userId):
+                        self.loadComment(itemId: itemId, userId: userId)
+                    case .failure(let error):
+                        print("Failed to fetch userId with error: \(error.localizedDescription)")
+                    }
+                }
+            }
+        })
+    }
+    
+    private func loadComment(itemId: String, userId: String) {
+        DispatchQueue.global(qos: .userInteractive).async {
+            API.dev.fetchComment(itemId: itemId, userId: userId) { result in
+                switch result {
+                case .success(let comment):
+                    DispatchQueue.main.async {
+                        print("## COMMENT LOADED", comment)
+                        self.comment = comment
+                    }
+                    GentooSDK.shared.fetchProduct(itemId: itemId, userId: userId)
+                case .failure(let error):
+                    print("Failed to load comment with error: \(error.localizedDescription)")
+                }
+            }
+        }
     }
     
     private let background: UIView = {
@@ -109,7 +142,6 @@ open class GentooFloatingButton: UIControl {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.text = "술 전문가 젠투에게 술 추천 받아보세요!"
         label.font = Font.pretendardSemiBold.uiFont(ofSize: 14)
         label.textColor = .darkGray
         label.alpha = 0
@@ -125,6 +157,8 @@ open class GentooFloatingButton: UIControl {
     
     private var expandWorkItem: DispatchWorkItem?
     private var collapseWorkItem: DispatchWorkItem?
+    
+    private var isExpanded: Bool = false
     
     private let minimumSize = CGSize(width: Constants.minimumWidth, height: Constants.minimumHeight)
     
@@ -148,25 +182,16 @@ open class GentooFloatingButton: UIControl {
         expandWorkItem?.cancel()
         collapseWorkItem?.cancel()
         
-        if newWindow != nil {
-            let now = DispatchTime.now()
-            expandWorkItem = DispatchWorkItem { [weak self] in
-                self?.expandButton()
-            }
-            collapseWorkItem = DispatchWorkItem { [weak self] in
-                self?.collapseButton()
-            }
-            DispatchQueue.main.asyncAfter(deadline: now + 1, execute: expandWorkItem!)
-            DispatchQueue.main.asyncAfter(deadline: now + 4, execute: collapseWorkItem!)
+        if newWindow != nil  {
+            triggerAnimation()
         }
     }
     
     private func setupViews() {
-        
         self.clipsToBounds = false
         
         self.addSubview(background)
-    
+        
         background.addSubview(floatingButtonContainerShadow1)
         background.addSubview(floatingButtonContainerShadow2)
         background.addSubview(buttonContainer)
@@ -175,9 +200,9 @@ open class GentooFloatingButton: UIControl {
         buttonContainer.addSubview(labelMask)
         buttonContainer.addSubview(icon)
         buttonContainer.addSubview(button)
-
+        
         setupConstraints()
-  
+        
         button.addTarget(self, action: #selector(handleButtonClick), for: .touchUpInside)
     }
     
@@ -186,7 +211,6 @@ open class GentooFloatingButton: UIControl {
     }
     
     private func setupConstraints() {
-        
         buttonContainerWidthConstraint = buttonContainer.widthAnchor.constraint(equalToConstant: Constants.buttonContainerWidthCollapsed)
         buttonContainerHeightConstraint = buttonContainer.heightAnchor.constraint(equalToConstant: Constants.buttonContainerHeightCollapsed)
         floatingButtonWidthConstraint = icon.widthAnchor.constraint(equalToConstant: Constants.floatingButtonWidthCollapsed)
@@ -199,7 +223,7 @@ open class GentooFloatingButton: UIControl {
             background.heightAnchor.constraint(equalToConstant: Constants.minimumHeight),
             background.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             background.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-
+            
             buttonContainerWidthConstraint,
             buttonContainerHeightConstraint,
             
@@ -235,8 +259,49 @@ open class GentooFloatingButton: UIControl {
             label.leadingAnchor.constraint(equalTo: buttonContainer.leadingAnchor, constant: Constants.labelLeading)
         ])
     }
+}
+
+// MARK: Animation
+extension GentooFloatingButton {
+    
+    private func collapseAndResetComment(completionHandler: @escaping () -> Void) {
+        expandWorkItem?.cancel()
+        collapseWorkItem?.cancel()
+        
+        if isExpanded {
+            collapseButton { _ in
+                self.comment = nil
+                completionHandler()
+            }
+        } else {
+            self.comment = nil
+            completionHandler()
+        }
+    }
+    
+    public func triggerAnimation() {
+        guard let comment else { return }
+        label.text = contentType == .normal ? comment.this : comment.needs
+        
+        let now = DispatchTime.now()
+        
+        expandWorkItem?.cancel()
+        collapseWorkItem?.cancel()
+        
+        expandWorkItem = DispatchWorkItem { [weak self] in
+            self?.expandButton()
+        }
+        collapseWorkItem = DispatchWorkItem { [weak self] in
+            self?.collapseButton()
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: now + 1, execute: expandWorkItem!)
+        DispatchQueue.main.asyncAfter(deadline: now + 4, execute: collapseWorkItem!)
+    }
     
     private func expandButton() {
+        isExpanded = true
+        
         buttonContainerWidthConstraint.constant = Constants.buttonContainerWidthExpanded
         buttonContainerHeightConstraint.constant = Constants.buttonContainerHeightExpanded
         floatingButtonWidthConstraint.constant = Constants.floatingButtonWidthExpanded
@@ -252,7 +317,9 @@ open class GentooFloatingButton: UIControl {
         }
     }
     
-    private func collapseButton() {
+    private func collapseButton(completionHandler: ((Bool) -> Void)? = nil) {
+        isExpanded = false
+        
         buttonContainerWidthConstraint.constant = Constants.buttonContainerWidthCollapsed
         buttonContainerHeightConstraint.constant = Constants.buttonContainerHeightCollapsed
         floatingButtonWidthConstraint.constant = Constants.floatingButtonWidthCollapsed
@@ -265,7 +332,43 @@ open class GentooFloatingButton: UIControl {
             self.floatingButtonContainerShadow2.layer.shadowPath = Constants.shadowPathCollapsed
             self.buttonContainer.layer.cornerRadius = Constants.buttonContainerCornerRadius
             self.label.alpha = 0
+        } completion: { completed in
+            completionHandler?(completed)
         }
+    }
+}
+
+private extension GentooFloatingButton {
+    
+    struct Constants {
+        static let buttonContainerCornerRadius: CGFloat = 27
+        static let buttonContainerExpandedCornerRadius: CGFloat = 25
+        static let floatingButtonWidthCollapsed: CGFloat = 54
+        static let floatingButtonHeightCollapsed: CGFloat = 54
+        static let floatingButtonWidthExpanded: CGFloat = 40
+        static let floatingButtonHeightExpanded: CGFloat = 40
+        static let buttonContainerWidthCollapsed: CGFloat = 54
+        static let buttonContainerHeightCollapsed: CGFloat = 54
+        static let buttonContainerWidthExpanded: CGFloat = 300
+        static let buttonContainerHeightExpanded: CGFloat = 50
+        static let floatingButtonTrailingCollapsed: CGFloat = 0
+        static let floatingButtonTrailingExpanded: CGFloat = -8
+        static let labelLeading: CGFloat = 24
+        static let minimumWidth: CGFloat = 300
+        static let minimumHeight: CGFloat = 54
+        static let shadowPathExpanded: CGPath = .init(
+            roundedRect: .init(origin: .zero, size: .init(width: 300, height: 50)),
+            cornerWidth: 25,
+            cornerHeight: 25,
+            transform: nil
+        )
+        static let shadowPathCollapsed: CGPath = .init(
+            roundedRect: .init(origin: .zero, size: .init(width: 54, height: 54)),
+            cornerWidth: 27,
+            cornerHeight: 27,
+            transform: nil
+        )
+        static let animationDuration: TimeInterval = 0.3
     }
     
 }
@@ -324,6 +427,5 @@ private extension GentooFloatingButtonView {
                 self.parent.action()
             }
         }
-    }
-    
+    }   
 }

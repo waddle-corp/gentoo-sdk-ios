@@ -11,6 +11,15 @@ import WebKit
 
 open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
+    public enum ContentType {
+        case normal
+        case recommendation
+    }
+    
+    public private(set) var contentType: ContentType = .normal
+    
+    public var itemId: String?
+    
     private var navigationBar: NavigationBar?
     private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
@@ -20,15 +29,27 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         return navigationController?.viewControllers.firstIndex(of: self) == nil
     }
     
-    public init() {
+    public init(itemId: String, contentType: ContentType) {
+        self.itemId = itemId
+        self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
-        self.modalPresentationStyle = .custom
-        self.transitioningDelegate = self
-        self.preferredContentSize = CGSize(width: UIScreen.main.bounds.width, height: 535)
+        didInit()
     }
     
     required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        didInit()
+    }
+    
+    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        didInit()
+    }
+    
+    private func didInit() {
+        self.modalPresentationStyle = .custom
+        self.transitioningDelegate = self
+        self.preferredContentSize = CGSize(width: UIScreen.main.bounds.width, height: 535)
     }
     
     public override func viewDidLoad() {
@@ -132,65 +153,74 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func loadWebPage() {
-        // TODO: Remove this later (for test purpose only)
-        try? self.fetchExampleProduct { result in
+        constructURL(completionHandler: { result in
             switch result {
-            case let .success(info):
-                if let url = self.constructURL(productInfo: info) {
-                    let request = URLRequest(url: url)
-                    DispatchQueue.main.async {
-                        self.webView.load(request)
-                    }
+            case .success(let url):
+                let request = URLRequest(url: url)
+                DispatchQueue.main.async {
+                    self.webView.load(request)
                 }
-            case let .failure(error):
-                print(error.localizedDescription)
+            case .failure(let error):
+                print("Failed to load web page: \(error.localizedDescription)")
+            }
+        })
+    }
+    
+    private func constructURL(completionHandler: @escaping (Result<URL, Error>) -> Void) {
+        guard let itemId = self.itemId else {
+            completionHandler(.failure(GentooSDK.Error.noItemId))
+            return
+        }
+        
+        if let userId = GentooSDK.shared.userId {
+            constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
+        } else {
+            GentooSDK.shared.fetchUserID { result in
+                switch result {
+                case .success(let userId):
+                    self.constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
+                case .failure(let error):
+                    completionHandler(.failure(error))
+                }
             }
         }
     }
     
-    private func constructURL(productInfo: String) -> URL? {
-        
-        return URL(string: "https://demo.gentooai.com/demo/288335308/demo_ck")!
-        
-        let clientId = "dlst"
-        let userId = "432883135"
-        
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "dev-demo.gentooai.com"
-        components.path = "/\(clientId)/sdk/\(userId)"
-        components.queryItems = [
-            URLQueryItem(name: "product", value: productInfo)
-        ]
-        
-        return components.url
-    }
-    
-    private func fetchExampleProduct(completionHandler: @escaping (Result<String, Error>) -> Void) throws {
-        var request = URLRequest(url: URL(string: "https://hg5eey52l4.execute-api.ap-northeast-2.amazonaws.com/dev/recommend")!)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: Any] = [
-            "itemId": 752,
-            "userId": 432883135,
-            "target": "this",
-            "channelId": "mobile"
-        ]
-        let data = try JSONSerialization.data(withJSONObject: body)
-        request.httpBody = data
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            if let error {
-                completionHandler(.failure(error))
-            } else if let data {
-                completionHandler(.success(String(data: data, encoding: .utf8)!))
-            } else {
-                completionHandler(.failure(URLError(.unknown)))
-            }
+    private func constructURL(itemId: String,
+                              userId: String,
+                              completionHandler: @escaping (Result<URL, Error>) -> Void) {
+        guard let configuration = GentooSDK.shared.configuration else {
+            completionHandler(.failure(GentooSDK.Error.notInitialized))
+            return
         }
         
-        task.resume()
+        // Check if the product exists already.
+        var product: String?
+        
+        if contentType == .normal {
+            product = GentooSDK.shared.products[itemId]
+        } else {
+            product = GentooSDK.shared.recommendedProducts[itemId]
+        }
+        
+        if let product {
+            let chatURL = URL.chatURL(clientId: configuration.clientId, userId: userId, product: product)
+            completionHandler(.success(chatURL))
+        } else {
+            GentooSDK.shared.fetchProduct(itemId: itemId,
+                                          userId: userId,
+                                          target: contentType == .normal ? "this" : "needs") { result in
+                switch result {
+                case .success(let product):
+                    let chatURL = URL.chatURL(clientId: configuration.clientId, userId: userId, product: product)
+                    completionHandler(.success(chatURL))
+                case .failure(let error):
+                    completionHandler(.failure(error))
+                }
+            }
+        }
     }
+    
     
     @objc private func backButtonTapped() {
         if isSheet {
@@ -266,3 +296,17 @@ public struct GentooChatView: UIViewControllerRepresentable {
         
     }
 }
+
+private extension URL {
+    static func chatURL(clientId: String, userId: String, product: String) -> Self {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "dev-demo.gentooai.com"
+        components.path = "/\(clientId)/sdk/\(userId)"
+        components.queryItems = [
+            URLQueryItem(name: "product", value: product)
+        ]
+        return components.url!
+    }
+}
+

@@ -28,6 +28,11 @@ class ViewController: UIViewController {
         
         gentooFloatingButtonView.translatesAutoresizingMaskIntoConstraints = false
         gentooFloatingButtonView.addTarget(self, action: #selector(onTap), for: .touchUpInside)
+        gentooFloatingButtonView.itemId = "752"
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+            self.gentooFloatingButtonView.setContentType(.recommendation)
+        }
 
         view.addSubview(gentooFloatingButtonView)
         
@@ -49,7 +54,8 @@ class ViewController: UIViewController {
     }
     
     @objc func onTap() {
-        navigationController?.show(GentooChatViewController(), sender: nil)
+        let vc = GentooChatViewController(itemId: gentooFloatingButtonView.itemId!, contentType: .normal)
+        self.show(vc, sender: nil)
     }
     
 }
