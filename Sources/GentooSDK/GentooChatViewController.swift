@@ -9,12 +9,9 @@ import UIKit
 import SwiftUI
 import WebKit
 
-open class GentooChatViewController: UIViewController, WKNavigationDelegate {
+public class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
-    public enum ContentType {
-        case normal
-        case recommendation
-    }
+    public typealias ContentType = GentooSDK.ContentType
     
     public private(set) var contentType: ContentType = .normal
     
@@ -24,12 +21,15 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
     private var webView: WKWebView!
+    private var isReloading = false
+    
+    private let inputFocusEventListener = GentooInputFocusEventListener()
     
     private var isSheet: Bool {
         return navigationController?.viewControllers.firstIndex(of: self) == nil
     }
     
-    public init(itemId: String, contentType: ContentType) {
+    public init(itemId: String, contentType: GentooSDK.ContentType) {
         self.itemId = itemId
         self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
@@ -50,6 +50,8 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
         self.modalPresentationStyle = .custom
         self.transitioningDelegate = self
         self.preferredContentSize = CGSize(width: UIScreen.main.bounds.width, height: 535)
+        
+        self.inputFocusEventListener.delegate = self
     }
     
     public override func viewDidLoad() {
@@ -115,16 +117,27 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func setupWebView() {
-        webView = WKWebView()
-        webView.navigationDelegate = self
-        view.addSubview(webView)
         
-        webView.translatesAutoresizingMaskIntoConstraints = false
+        let configuration = WKWebViewConfiguration()
+        configuration.suppressesIncrementalRendering = true
+        configuration.websiteDataStore = .nonPersistent()
+        
+        configuration.userContentController.add(
+            inputFocusEventListener,
+            name: GentooInputFocusEventListener.name
+        )
+        
+        webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = self
+        webView.scrollView.showsVerticalScrollIndicator = false
 #if DEBUG
         if #available(iOS 16.4, *) {
             webView.isInspectable = true
         }
 #endif
+        
+        view.addSubview(webView)
+        webView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -256,7 +269,10 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
             if translation.y > 200 || velocity.y > 500 {
                 dismiss(animated: true, completion: nil)
             } else if translation.y < -100 || velocity.y < -500 {
-                customPresentationController.expandToFullScreen()
+                customPresentationController.expandToFullScreen {
+                    self.isReloading = true
+                    self.webView.reload()
+                }
             } else {
                 UIView.animate(withDuration: 0.3) {
                     self.view.transform = .identity
@@ -270,7 +286,11 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
     // MARK: WKNavigationDelegate methods
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        activityIndicator.startAnimating()
+        if isReloading {
+            isReloading = false
+        } else {
+            activityIndicator.startAnimating()
+        }
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -279,6 +299,21 @@ open class GentooChatViewController: UIViewController, WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         activityIndicator.stopAnimating()
+    }
+}
+
+extension GentooChatViewController: GentooInputFocusEventListenerDelegate {
+    func didReceiveFocusEvent(listener: GentooInputFocusEventListener) {
+        guard let customPresentationController = self.presentationController as? CustomPresentationController,
+            customPresentationController.isExpanded == false else {
+            return
+        }
+        
+        customPresentationController.expandToFullScreen {
+            // Scroll to bottom
+            let scrollToBottomScript = "window.scrollTo(0, document.body.scrollHeight);"
+            self.webView.evaluateJavaScript(scrollToBottomScript, completionHandler: nil)
+        }
     }
 }
 
@@ -291,7 +326,7 @@ public struct GentooChatView: UIViewControllerRepresentable {
     public func makeUIViewController(context: Context) -> GentooChatViewController {
         GentooChatViewController()
     }
-
+    
     public func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {
         
     }

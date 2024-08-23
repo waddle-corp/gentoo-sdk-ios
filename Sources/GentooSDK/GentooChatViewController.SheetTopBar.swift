@@ -139,12 +139,14 @@ class CustomPresentationController: UIPresentationController {
         }
     }
     
-    func expandToFullScreen() {
+    func expandToFullScreen(completionHandler: (() -> Void)? = nil) {
         guard let containerView = containerView else { return }
         isExpanded = true
         UIView.animate(withDuration: 0.3) {
             self.presentedView?.frame = self.expandedFrame
             containerView.layoutIfNeeded()
+        } completion: { _ in
+            completionHandler?()
         }
     }
     
