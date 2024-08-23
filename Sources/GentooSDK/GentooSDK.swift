@@ -66,6 +66,12 @@ public final class GentooSDK {
         self.queue.sync { _recommendedProducts }
     }
     
+    private var _webViews: [ContentType: GentooWebView] = [:]
+    
+    var webViews: [ContentType: GentooWebView] {
+        self.queue.sync { _webViews }
+    }
+    
     private let queue: DispatchQueue = DispatchQueue(label: "com.waddlecorp.gentoo-sdk.queue")
     
     private init() {}
@@ -110,7 +116,13 @@ public final class GentooSDK {
     }
     
     func fetchProduct(itemId: String, userId: String) {
-        fetchProduct(itemId: itemId, userId: userId, target: "this")
+        fetchProduct(itemId: itemId, userId: userId, target: "this", completionHandler: { result in
+            if case .success = result {
+                DispatchQueue.main.async {
+                    self.preloadWebView(itemId: itemId, contentType: .normal)
+                }
+            }
+        })
         fetchProduct(itemId: itemId, userId: userId, target: "needs")
     }
     
@@ -134,6 +146,31 @@ public final class GentooSDK {
                     completionHandler?(.failure(error))
                 }
             }
+        }
+    }
+    
+    func preloadWebView(itemId: String, contentType: GentooSDK.ContentType) {
+        var needsPreload = false
+        
+        self.queue.sync {
+            needsPreload = self._webViews[contentType] == nil
+        }
+        
+        guard needsPreload else { return }
+        
+        let webView = GentooWebView()
+        webView.contentType = contentType
+        webView.loadWebPage(itemId: itemId)
+        
+        self.queue.sync {
+            guard self._webViews[contentType] == nil else { return }
+            self._webViews[contentType] = webView
+        }
+    }
+    
+    func discardPreloadedWebView(contentType: GentooSDK.ContentType) {
+        self.queue.sync {
+            self._webViews[contentType] = nil
         }
     }
 }

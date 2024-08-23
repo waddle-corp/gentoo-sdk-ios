@@ -18,6 +18,9 @@ public class GentooFloatingButton: UIControl {
         self.contentType = type
         if type == .recommendation {
             triggerAnimation()
+            if let itemId {
+                GentooSDK.shared.preloadWebView(itemId: itemId, contentType: .recommendation)
+            }
         }
     }
     

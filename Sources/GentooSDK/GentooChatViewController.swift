@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 import WebKit
 
-public class GentooChatViewController: UIViewController, WKNavigationDelegate {
+public class GentooChatViewController: UIViewController {
     
     public typealias ContentType = GentooSDK.ContentType
     
@@ -20,10 +20,7 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
     private var navigationBar: NavigationBar?
     private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
-    private var webView: WKWebView!
-    private var isReloading = false
-    
-    private let inputFocusEventListener = GentooInputFocusEventListener()
+    private var gentooWebView: GentooWebView!
     
     private var isSheet: Bool {
         return navigationController?.viewControllers.firstIndex(of: self) == nil
@@ -50,8 +47,6 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         self.modalPresentationStyle = .custom
         self.transitioningDelegate = self
         self.preferredContentSize = CGSize(width: UIScreen.main.bounds.width, height: 535)
-        
-        self.inputFocusEventListener.delegate = self
     }
     
     public override func viewDidLoad() {
@@ -64,10 +59,8 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
             setupNavigationBar()
         }
         
-        setupWebView()
+        setupGentooWebView()
         setupActivityIndicator()
-        loadWebPage()
-        
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -78,6 +71,10 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+        GentooSDK.shared.discardPreloadedWebView(contentType: contentType)
+        if let itemId {
+            GentooSDK.shared.preloadWebView(itemId: itemId, contentType: contentType)
+        }
     }
     
     private func setupSheetTopBar() {
@@ -116,34 +113,31 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
         ])
     }
     
-    private func setupWebView() {
-        
-        let configuration = WKWebViewConfiguration()
-        configuration.suppressesIncrementalRendering = true
-        configuration.websiteDataStore = .nonPersistent()
-        
-        configuration.userContentController.add(
-            inputFocusEventListener,
-            name: GentooInputFocusEventListener.name
-        )
-        
-        webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.navigationDelegate = self
-        webView.scrollView.showsVerticalScrollIndicator = false
-#if DEBUG
-        if #available(iOS 16.4, *) {
-            webView.isInspectable = true
+    private func setupGentooWebView() {
+        if let preloadedWebView = GentooSDK.shared.webViews[contentType],
+           preloadedWebView.itemId == self.itemId,
+           preloadedWebView.contentType == self.contentType {
+            gentooWebView = preloadedWebView
+            gentooWebView.reloadWebPage()
+        } else {
+            gentooWebView = GentooWebView()
+            gentooWebView.contentType = contentType
+            
+            if let itemId = itemId {
+                gentooWebView.loadWebPage(itemId: itemId)
+            }
         }
-#endif
         
-        view.addSubview(webView)
-        webView.translatesAutoresizingMaskIntoConstraints = false
+        gentooWebView.delegate = self
+        
+        view.addSubview(gentooWebView)
+        gentooWebView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.topAnchor.constraint(equalTo: isSheet ? sheetTopBar!.bottomAnchor : navigationBar!.bottomAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            gentooWebView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            gentooWebView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            gentooWebView.topAnchor.constraint(equalTo: isSheet ? sheetTopBar!.bottomAnchor : navigationBar!.bottomAnchor),
+            gentooWebView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
@@ -154,86 +148,15 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
         activityIndicator.hidesWhenStopped = true
-        activityIndicator.startAnimating()
         
         view.addSubview(activityIndicator)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: webView.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: webView.centerYAnchor)
+            activityIndicator.centerXAnchor.constraint(equalTo: gentooWebView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: gentooWebView.centerYAnchor)
         ])
     }
-    
-    private func loadWebPage() {
-        constructURL(completionHandler: { result in
-            switch result {
-            case .success(let url):
-                let request = URLRequest(url: url)
-                DispatchQueue.main.async {
-                    self.webView.load(request)
-                }
-            case .failure(let error):
-                print("Failed to load web page: \(error.localizedDescription)")
-            }
-        })
-    }
-    
-    private func constructURL(completionHandler: @escaping (Result<URL, Error>) -> Void) {
-        guard let itemId = self.itemId else {
-            completionHandler(.failure(GentooSDK.Error.noItemId))
-            return
-        }
-        
-        if let userId = GentooSDK.shared.userId {
-            constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
-        } else {
-            GentooSDK.shared.fetchUserID { result in
-                switch result {
-                case .success(let userId):
-                    self.constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
-                case .failure(let error):
-                    completionHandler(.failure(error))
-                }
-            }
-        }
-    }
-    
-    private func constructURL(itemId: String,
-                              userId: String,
-                              completionHandler: @escaping (Result<URL, Error>) -> Void) {
-        guard let configuration = GentooSDK.shared.configuration else {
-            completionHandler(.failure(GentooSDK.Error.notInitialized))
-            return
-        }
-        
-        // Check if the product exists already.
-        var product: String?
-        
-        if contentType == .normal {
-            product = GentooSDK.shared.products[itemId]
-        } else {
-            product = GentooSDK.shared.recommendedProducts[itemId]
-        }
-        
-        if let product {
-            let chatURL = URL.chatURL(clientId: configuration.clientId, userId: userId, product: product)
-            completionHandler(.success(chatURL))
-        } else {
-            GentooSDK.shared.fetchProduct(itemId: itemId,
-                                          userId: userId,
-                                          target: contentType == .normal ? "this" : "needs") { result in
-                switch result {
-                case .success(let product):
-                    let chatURL = URL.chatURL(clientId: configuration.clientId, userId: userId, product: product)
-                    completionHandler(.success(chatURL))
-                case .failure(let error):
-                    completionHandler(.failure(error))
-                }
-            }
-        }
-    }
-    
     
     @objc private func backButtonTapped() {
         if isSheet {
@@ -270,8 +193,8 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
                 dismiss(animated: true, completion: nil)
             } else if translation.y < -100 || velocity.y < -500 {
                 customPresentationController.expandToFullScreen {
-                    self.isReloading = true
-                    self.webView.reload()
+                    // WebView 콘텐츠가 로드가 되기 전에 expand되면 content 영역이 잘리는 경우가 있는데, 이 경우에는 reload해준다.
+                    self.gentooWebView.reloadWebPageIfNeeded()
                 }
             } else {
                 UIView.animate(withDuration: 0.3) {
@@ -283,36 +206,31 @@ public class GentooChatViewController: UIViewController, WKNavigationDelegate {
             break
         }
     }
-    
-    // MARK: WKNavigationDelegate methods
-    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        if isReloading {
-            isReloading = false
-        } else {
-            activityIndicator.startAnimating()
-        }
-    }
-    
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        activityIndicator.stopAnimating()
-    }
-    
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        activityIndicator.stopAnimating()
-    }
 }
 
-extension GentooChatViewController: GentooInputFocusEventListenerDelegate {
-    func didReceiveFocusEvent(listener: GentooInputFocusEventListener) {
+extension GentooChatViewController: GentooWebViewDelegate {
+    
+    // MARK: GentooWebViewDelegate methods
+    public func webViewDidStartLoading(_ webView: GentooWebView) {
+        activityIndicator.startAnimating()
+    }
+    
+    public func webViewDidFinishLoading(_ webView: GentooWebView) {
+        activityIndicator.stopAnimating()
+    }
+    
+    public func webView(_ webView: GentooWebView, didFailWithError error: Error) {
+        activityIndicator.stopAnimating()
+    }
+    
+    public func webViewDidFocusInput(_ webView: GentooWebView) {
         guard let customPresentationController = self.presentationController as? CustomPresentationController,
-            customPresentationController.isExpanded == false else {
+              customPresentationController.isExpanded == false else {
             return
         }
         
         customPresentationController.expandToFullScreen {
-            // Scroll to bottom
-            let scrollToBottomScript = "window.scrollTo(0, document.body.scrollHeight);"
-            self.webView.evaluateJavaScript(scrollToBottomScript, completionHandler: nil)
+            self.gentooWebView.scrollToBottom()
         }
     }
 }
@@ -331,17 +249,3 @@ public struct GentooChatView: UIViewControllerRepresentable {
         
     }
 }
-
-private extension URL {
-    static func chatURL(clientId: String, userId: String, product: String) -> Self {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "dev-demo.gentooai.com"
-        components.path = "/\(clientId)/sdk/\(userId)"
-        components.queryItems = [
-            URLQueryItem(name: "product", value: product)
-        ]
-        return components.url!
-    }
-}
-
