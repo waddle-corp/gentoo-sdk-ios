@@ -8,12 +8,9 @@
 import UIKit
 import SwiftUI
 
-open class GentooFloatingButton: UIControl {
+public class GentooFloatingButton: UIControl {
     
-    public enum ContentType {
-        case normal
-        case recommendation
-    }
+    public typealias ContentType = GentooSDK.ContentType
     
     public private(set) var contentType: ContentType = .normal
     
@@ -176,7 +173,7 @@ open class GentooFloatingButton: UIControl {
         setupViews()
     }
     
-    open override func willMove(toWindow newWindow: UIWindow?) {
+    public override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
         
         expandWorkItem?.cancel()

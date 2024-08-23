@@ -149,3 +149,10 @@ extension GentooSDK {
     typealias Comment = API.CommentResponse
     typealias ItemID = String
 }
+
+extension GentooSDK {
+    public enum ContentType {
+        case normal
+        case recommendation
+    }
+}

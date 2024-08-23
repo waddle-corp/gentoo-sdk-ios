@@ -54,8 +54,9 @@ class ViewController: UIViewController {
     }
     
     @objc func onTap() {
-        let vc = GentooChatViewController(itemId: gentooFloatingButtonView.itemId!, contentType: .normal)
-        self.show(vc, sender: nil)
+        let vc = GentooChatViewController(itemId: gentooFloatingButtonView.itemId!, 
+                                          contentType: gentooFloatingButtonView.contentType)
+        self.present(vc, animated: true)
     }
     
 }
