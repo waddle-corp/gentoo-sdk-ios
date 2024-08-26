@@ -50,6 +50,7 @@ public class GentooFloatingButton: UIControl {
                     case .success(let userId):
                         self.loadComment(itemId: itemId, userId: userId)
                     case .failure(let error):
+                        GentooSDK.shared.publishError(.notInitialized)
                         print("Failed to fetch userId with error: \(error.localizedDescription)")
                     }
                 }
@@ -377,14 +378,24 @@ private extension GentooFloatingButton {
 @available(iOS 13.0, *)
 public struct GentooFloatingButtonView: View {
     
+    @Binding 
+    var itemId: String?
+    
+    @Binding 
+    var contentType: GentooSDK.ContentType
+    
     public var action: () -> Void
     
-    public init(action: @escaping () -> Void) {
+    public init(itemId: Binding<String?>,
+                contentType: Binding<GentooSDK.ContentType>,
+                action: @escaping () -> Void) {
+        self._itemId = itemId
+        self._contentType = contentType
         self.action = action
     }
     
     public var body: some View {
-        InnerView(action: action)
+        InnerView(itemId: $itemId, contentType: $contentType, action: action)
             .frame(width: 300, height: 54)
     }
     
@@ -395,16 +406,25 @@ private extension GentooFloatingButtonView {
     
     struct InnerView: UIViewRepresentable {
         
+        @Binding var itemId: String?
+        @Binding var contentType: GentooSDK.ContentType
         var action: () -> Void
         
         func makeUIView(context: Context) -> GentooFloatingButton {
             let button = GentooFloatingButton()
             button.addTarget(context.coordinator, action: #selector(Coordinator.onTap), for: .touchUpInside)
+            button.itemId = itemId
+            button.setContentType(contentType)
             return button
         }
-
+        
         func updateUIView(_ uiView: GentooFloatingButton, context: Context) {
-            
+            if uiView.itemId != itemId {
+                uiView.itemId = itemId
+            }
+            if uiView.contentType != contentType {
+                uiView.setContentType(contentType)
+            }
         }
         
         @available(iOS 16.0, *)
@@ -427,5 +447,5 @@ private extension GentooFloatingButtonView {
                 self.parent.action()
             }
         }
-    }   
+    }
 }

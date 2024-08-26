@@ -17,6 +17,8 @@ public class GentooChatViewController: UIViewController {
     
     public var itemId: String?
     
+    var _enablesPanGestureRecognizer = true
+    
     private var navigationBar: NavigationBar?
     private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
@@ -84,8 +86,10 @@ public class GentooChatViewController: UIViewController {
         sheetTopBar.closeButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         sheetTopBar.translatesAutoresizingMaskIntoConstraints = false
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
-        sheetTopBar.addGestureRecognizer(panGesture)
+        if _enablesPanGestureRecognizer {
+            let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+            sheetTopBar.addGestureRecognizer(panGesture)
+        }
         
         NSLayoutConstraint.activate([
             sheetTopBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -168,6 +172,8 @@ public class GentooChatViewController: UIViewController {
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         
+        guard _enablesPanGestureRecognizer else { return }
+        
         guard let customPresentationController = self.presentationController as? CustomPresentationController else { return }
         
         let translation = gesture.translation(in: view)
@@ -239,13 +245,19 @@ extension GentooChatViewController: GentooWebViewDelegate {
 @available(iOS 13.0, *)
 public struct GentooChatView: UIViewControllerRepresentable {
     
-    public init() {}
+    public let itemId: String
+    public let contentType: GentooSDK.ContentType
+    
+    public init(itemId: String, contentType: GentooSDK.ContentType) {
+        self.itemId = itemId
+        self.contentType = contentType
+    }
     
     public func makeUIViewController(context: Context) -> GentooChatViewController {
-        GentooChatViewController()
+        let vc = GentooChatViewController(itemId: itemId, contentType: contentType)
+        vc._enablesPanGestureRecognizer = false
+        return vc
     }
     
-    public func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {
-        
-    }
+    public func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {}
 }

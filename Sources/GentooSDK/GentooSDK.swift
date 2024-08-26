@@ -36,6 +36,11 @@ public final class GentooSDK {
         GentooSDK.shared.initialize(with: configuration)
     }
     
+    public static var onError: ((any Swift.Error) -> Void)? {
+        get { GentooSDK.shared.queue.sync { GentooSDK.shared._errorHandler } }
+        set { GentooSDK.shared.queue.sync { GentooSDK.shared._errorHandler = newValue } }
+    }
+    
     static let shared = GentooSDK()
     
     private var _configuration: Configruation?
@@ -71,6 +76,8 @@ public final class GentooSDK {
     var webViews: [ContentType: GentooWebView] {
         self.queue.sync { _webViews }
     }
+    
+    private var _errorHandler: ((any Swift.Error) -> Void)?
     
     private let queue: DispatchQueue = DispatchQueue(label: "com.waddlecorp.gentoo-sdk.queue")
     
@@ -173,12 +180,24 @@ public final class GentooSDK {
             self._webViews[contentType] = nil
         }
     }
+    
+    func publishError(_ error: GentooSDK.Error) {
+        self.queue.async {
+            self._errorHandler?(error)
+        }
+    }
 }
                               
 extension GentooSDK {
-    enum Error: Swift.Error {
+    enum Error: LocalizedError {
         case notInitialized
-        case noItemId
+        
+        var errorDescription: String? {
+            switch self {
+            case .notInitialized:
+                return "GentooSDK has not been initialized."
+            }
+        }
     }
 }
 
