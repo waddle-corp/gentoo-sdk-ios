@@ -8,25 +8,25 @@
 import UIKit
 import WebKit
 
-public protocol GentooWebViewDelegate: AnyObject {
+protocol GentooWebViewDelegate: AnyObject {
     func webViewDidStartLoading(_ webView: GentooWebView)
     func webViewDidFinishLoading(_ webView: GentooWebView)
     func webView(_ webView: GentooWebView, didFailWithError error: Error)
     func webViewDidFocusInput(_ webView: GentooWebView)
 }
 
-public class GentooWebView: UIView, WKNavigationDelegate {
+final class GentooWebView: UIView, WKNavigationDelegate {
     
-    public var webView: WKWebView!
-    public weak var delegate: GentooWebViewDelegate?
+    var webView: WKWebView!
+    weak var delegate: GentooWebViewDelegate?
     
     private var isReloading = false
     private let inputFocusEventListener = GentooInputFocusEventListener()
     
     private(set) var itemId: String?
-    public var contentType: GentooSDK.ContentType = .normal
+    var contentType: GentooSDK.ContentType = .normal
     
-    public override init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         setupWebView()
     }
@@ -83,17 +83,17 @@ public class GentooWebView: UIView, WKNavigationDelegate {
         }
     }
     
-    public func reloadWebPageIfNeeded() {
+    func reloadWebPageIfNeeded() {
         if webView.scrollView.contentSize != webView.scrollView.bounds.size {
             reloadWebPage()
         }
     }
      
-    public func reloadWebPage() {
+    func reloadWebPage() {
         webView.reload()
     }
     
-    public func notifyFrameSizeChange(size: CGSize) {
+    func notifyFrameSizeChange(size: CGSize) {
         let jsCode = """
             document.body.style.height = '\(size.height)px';
             document.body.style.width = '\(size.width)px';
@@ -101,7 +101,7 @@ public class GentooWebView: UIView, WKNavigationDelegate {
         webView.evaluateJavaScript(jsCode, completionHandler: nil)
     }
     
-    public func scrollToBottom() {
+    func scrollToBottom() {
         let scrollToBottomScript = "window.scrollTo(0, document.body.scrollHeight);"
         webView.evaluateJavaScript(scrollToBottomScript, completionHandler: nil)
     }
@@ -161,15 +161,15 @@ public class GentooWebView: UIView, WKNavigationDelegate {
     }
     
     // MARK: WKNavigationDelegate methods
-    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         delegate?.webViewDidStartLoading(self)
     }
     
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         delegate?.webViewDidFinishLoading(self)
     }
     
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         delegate?.webView(self, didFailWithError: error)
     }
 }

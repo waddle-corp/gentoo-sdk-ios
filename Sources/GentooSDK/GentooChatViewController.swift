@@ -211,19 +211,19 @@ public class GentooChatViewController: UIViewController {
 extension GentooChatViewController: GentooWebViewDelegate {
     
     // MARK: GentooWebViewDelegate methods
-    public func webViewDidStartLoading(_ webView: GentooWebView) {
+    func webViewDidStartLoading(_ webView: GentooWebView) {
         activityIndicator.startAnimating()
     }
     
-    public func webViewDidFinishLoading(_ webView: GentooWebView) {
+    func webViewDidFinishLoading(_ webView: GentooWebView) {
         activityIndicator.stopAnimating()
     }
     
-    public func webView(_ webView: GentooWebView, didFailWithError error: Error) {
+    func webView(_ webView: GentooWebView, didFailWithError error: Error) {
         activityIndicator.stopAnimating()
     }
     
-    public func webViewDidFocusInput(_ webView: GentooWebView) {
+    func webViewDidFocusInput(_ webView: GentooWebView) {
         guard let customPresentationController = self.presentationController as? CustomPresentationController,
               customPresentationController.isExpanded == false else {
             return
