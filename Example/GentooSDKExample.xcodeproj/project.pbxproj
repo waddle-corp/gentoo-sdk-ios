@@ -14,6 +14,11 @@
 		CED598442C62451D00B024F2 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = CED598432C62451D00B024F2 /* Base */; };
 		CED598462C62451E00B024F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CED598452C62451E00B024F2 /* Assets.xcassets */; };
 		CED598492C62451E00B024F2 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = CED598482C62451E00B024F2 /* Base */; };
+		CEDE5D0C2C7CAAD5008FC074 /* GentooSDKExampleSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDE5D0B2C7CAAD5008FC074 /* GentooSDKExampleSwiftUIApp.swift */; };
+		CEDE5D0E2C7CAAD5008FC074 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDE5D0D2C7CAAD5008FC074 /* ContentView.swift */; };
+		CEDE5D102C7CAAD6008FC074 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEDE5D0F2C7CAAD6008FC074 /* Assets.xcassets */; };
+		CEDE5D132C7CAAD6008FC074 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEDE5D122C7CAAD6008FC074 /* Preview Assets.xcassets */; };
+		CEDE5D182C7CADC9008FC074 /* GentooSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CEDE5D172C7CADC9008FC074 /* GentooSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +31,11 @@
 		CED598452C62451E00B024F2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CED598482C62451E00B024F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CED5984A2C62451E00B024F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CEDE5D092C7CAAD5008FC074 /* GentooSDKExampleSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GentooSDKExampleSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEDE5D0B2C7CAAD5008FC074 /* GentooSDKExampleSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GentooSDKExampleSwiftUIApp.swift; sourceTree = "<group>"; };
+		CEDE5D0D2C7CAAD5008FC074 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CEDE5D0F2C7CAAD6008FC074 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CEDE5D122C7CAAD6008FC074 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +44,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE7D496F2C6650140034EDAA /* GentooSDK in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEDE5D062C7CAAD5008FC074 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CEDE5D182C7CADC9008FC074 /* GentooSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,6 +70,7 @@
 			children = (
 				CE7D49702C6A29FA0034EDAA /* gentoo-sdk-ios */,
 				CED5983B2C62451D00B024F2 /* GentooSDKExample */,
+				CEDE5D0A2C7CAAD5008FC074 /* GentooSDKExampleSwiftUI */,
 				CED5983A2C62451D00B024F2 /* Products */,
 				CEC6C8952C6506B00001E9CB /* Frameworks */,
 			);
@@ -61,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				CED598392C62451D00B024F2 /* GentooSDKExample.app */,
+				CEDE5D092C7CAAD5008FC074 /* GentooSDKExampleSwiftUI.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,6 +97,25 @@
 				CED5984A2C62451E00B024F2 /* Info.plist */,
 			);
 			path = GentooSDKExample;
+			sourceTree = "<group>";
+		};
+		CEDE5D0A2C7CAAD5008FC074 /* GentooSDKExampleSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				CEDE5D0B2C7CAAD5008FC074 /* GentooSDKExampleSwiftUIApp.swift */,
+				CEDE5D0D2C7CAAD5008FC074 /* ContentView.swift */,
+				CEDE5D0F2C7CAAD6008FC074 /* Assets.xcassets */,
+				CEDE5D112C7CAAD6008FC074 /* Preview Content */,
+			);
+			path = GentooSDKExampleSwiftUI;
+			sourceTree = "<group>";
+		};
+		CEDE5D112C7CAAD6008FC074 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				CEDE5D122C7CAAD6008FC074 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +141,26 @@
 			productReference = CED598392C62451D00B024F2 /* GentooSDKExample.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CEDE5D082C7CAAD5008FC074 /* GentooSDKExampleSwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEDE5D142C7CAAD6008FC074 /* Build configuration list for PBXNativeTarget "GentooSDKExampleSwiftUI" */;
+			buildPhases = (
+				CEDE5D052C7CAAD5008FC074 /* Sources */,
+				CEDE5D062C7CAAD5008FC074 /* Frameworks */,
+				CEDE5D072C7CAAD5008FC074 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GentooSDKExampleSwiftUI;
+			packageProductDependencies = (
+				CEDE5D172C7CADC9008FC074 /* GentooSDK */,
+			);
+			productName = GentooSDKExampleSwiftUI;
+			productReference = CEDE5D092C7CAAD5008FC074 /* GentooSDKExampleSwiftUI.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -113,6 +172,9 @@
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					CED598382C62451D00B024F2 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					CEDE5D082C7CAAD5008FC074 = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
@@ -134,6 +196,7 @@
 			projectRoot = "";
 			targets = (
 				CED598382C62451D00B024F2 /* GentooSDKExample */,
+				CEDE5D082C7CAAD5008FC074 /* GentooSDKExampleSwiftUI */,
 			);
 		};
 /* End PBXProject section */
@@ -149,6 +212,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CEDE5D072C7CAAD5008FC074 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CEDE5D132C7CAAD6008FC074 /* Preview Assets.xcassets in Resources */,
+				CEDE5D102C7CAAD6008FC074 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -159,6 +231,15 @@
 				CED598412C62451D00B024F2 /* ViewController.swift in Sources */,
 				CED5983D2C62451D00B024F2 /* AppDelegate.swift in Sources */,
 				CED5983F2C62451D00B024F2 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEDE5D052C7CAAD5008FC074 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CEDE5D0E2C7CAAD5008FC074 /* ContentView.swift in Sources */,
+				CEDE5D0C2C7CAAD5008FC074 /* GentooSDKExampleSwiftUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +442,64 @@
 			};
 			name = Release;
 		};
+		CEDE5D152C7CAAD6008FC074 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"GentooSDKExampleSwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = 3L9A5724Q3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.waddle-corp.gentoo.example-swiftui";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CEDE5D162C7CAAD6008FC074 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"GentooSDKExampleSwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = 3L9A5724Q3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.waddle-corp.gentoo.example-swiftui";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -382,6 +521,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		CEDE5D142C7CAAD6008FC074 /* Build configuration list for PBXNativeTarget "GentooSDKExampleSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CEDE5D152C7CAAD6008FC074 /* Debug */,
+				CEDE5D162C7CAAD6008FC074 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -397,6 +545,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		CE7D496E2C6650140034EDAA /* GentooSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE7D496D2C6650140034EDAA /* XCRemoteSwiftPackageReference "gentoo-sdk-ios" */;
+			productName = GentooSDK;
+		};
+		CEDE5D172C7CADC9008FC074 /* GentooSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE7D496D2C6650140034EDAA /* XCRemoteSwiftPackageReference "gentoo-sdk-ios" */;
 			productName = GentooSDK;
