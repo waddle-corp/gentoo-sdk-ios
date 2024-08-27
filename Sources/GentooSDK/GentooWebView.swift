@@ -93,14 +93,6 @@ final class GentooWebView: UIView, WKNavigationDelegate {
         webView.reload()
     }
     
-    func notifyFrameSizeChange(size: CGSize) {
-        let jsCode = """
-            document.body.style.height = '\(size.height)px';
-            document.body.style.width = '\(size.width)px';
-        """
-        webView.evaluateJavaScript(jsCode, completionHandler: nil)
-    }
-    
     func scrollToBottom() {
         let scrollToBottomScript = "window.scrollTo(0, document.body.scrollHeight);"
         webView.evaluateJavaScript(scrollToBottomScript, completionHandler: nil)

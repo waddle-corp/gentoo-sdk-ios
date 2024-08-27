@@ -18,14 +18,16 @@ public class GentooChatViewController: UIViewController {
     public var itemId: String?
     
     var _enablesPanGestureRecognizer = true
+    var _showsNavigationBar: Bool?
     
     private var navigationBar: NavigationBar?
     private var sheetTopBar: SheetTopBar?
     private var activityIndicator: UIActivityIndicatorView!
     private var gentooWebView: GentooWebView!
     
+    private var _isSheet: Bool?
     private var isSheet: Bool {
-        return navigationController?.viewControllers.firstIndex(of: self) == nil
+        return _isSheet ?? (navigationController?.viewControllers.firstIndex(of: self) == nil)
     }
     
     public init(itemId: String, contentType: GentooSDK.ContentType) {
@@ -55,7 +57,15 @@ public class GentooChatViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        if isSheet {
+        if let _showsNavigationBar {
+            if _showsNavigationBar {
+                _isSheet = false
+                setupNavigationBar()
+            } else {
+                _isSheet = true
+                setupSheetTopBar()
+            }
+        } else if isSheet {
             setupSheetTopBar()
         } else {
             setupNavigationBar()
@@ -243,7 +253,7 @@ extension GentooChatViewController: GentooWebViewDelegate {
 
 
 @available(iOS 13.0, *)
-public struct GentooChatView: UIViewControllerRepresentable {
+public struct GentooChatView: View {
     
     public let itemId: String
     public let contentType: GentooSDK.ContentType
@@ -253,11 +263,23 @@ public struct GentooChatView: UIViewControllerRepresentable {
         self.contentType = contentType
     }
     
-    public func makeUIViewController(context: Context) -> GentooChatViewController {
-        let vc = GentooChatViewController(itemId: itemId, contentType: contentType)
-        vc._enablesPanGestureRecognizer = false
-        return vc
+    public var body: some View {
+        Inner(itemId: itemId, contentType: contentType, showsNavigationBar: true)
     }
     
-    public func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {}
+    struct Inner: UIViewControllerRepresentable {
+        
+        let itemId: String
+        let contentType: GentooSDK.ContentType
+        let showsNavigationBar: Bool
+        
+        func makeUIViewController(context: Context) -> GentooChatViewController {
+            let vc = GentooChatViewController(itemId: itemId, contentType: contentType)
+            vc._enablesPanGestureRecognizer = false
+            vc._showsNavigationBar = self.showsNavigationBar
+            return vc
+        }
+        
+        func updateUIViewController(_ uiViewController: GentooChatViewController, context: Context) {}
+    }
 }

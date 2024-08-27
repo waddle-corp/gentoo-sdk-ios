@@ -10,6 +10,10 @@ import GentooSDK
 
 struct ContentView: View {
     
+    enum NavigationDestination: Hashable {
+        case chatView(itemId: String, contentType: GentooSDK.ContentType)
+    }
+    
     @State
     private var itemId: String? = "752"
     
@@ -19,22 +23,28 @@ struct ContentView: View {
     @State
     private var showsChatView: Bool = false
     
+    @State
+    var path: NavigationPath = .init()
+    
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            TableView(contentType: $contentType)
-                .edgesIgnoringSafeArea(.all)
-            
-            GentooFloatingButtonView(itemId: $itemId, contentType: $contentType) {
-                self.showsChatView = true
+        NavigationStack(path: $path) {
+            ZStack(alignment: .bottomTrailing) {
+                TableView(contentType: $contentType)
+                    .edgesIgnoringSafeArea(.all)
+
+                GentooFloatingButtonView(itemId: $itemId, contentType: $contentType) {
+                    guard let itemId else { return }
+                    self.path.append(NavigationDestination.chatView(itemId: itemId, contentType: contentType))
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 50)
             }
-            .frame(width: 300, height: 54)
-            .padding(.trailing, 20)
-            .padding(.bottom, 50)
-        }
-        .sheet(isPresented: $showsChatView) {
-            GentooChatView(itemId: itemId!, contentType: contentType)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .chatView(let itemId, let contentType):
+                    GentooChatView(itemId: itemId, contentType: contentType)
+                }
+            }
         }
     }
     

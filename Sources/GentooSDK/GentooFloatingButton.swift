@@ -420,6 +420,33 @@ private extension GentooFloatingButton {
     
 }
 
+@available(iOS 13.0, *)
+public struct GentooPresentationFloatingButtonView: View {
+    
+    @Binding
+    var itemId: String?
+    
+    @Binding
+    var contentType: GentooSDK.ContentType
+    
+    public init(itemId: Binding<String?>,
+                contentType: Binding<GentooSDK.ContentType>) {
+        self._itemId = itemId
+        self._contentType = contentType
+    }
+    
+    public var body: some View {
+        GentooFloatingButtonView.InnerView(itemId: $itemId, contentType: $contentType, action: onTap)
+            .frame(width: 300, height: 54)
+    }
+    
+    private func onTap() {
+        guard let itemId else { return }
+        let vc = GentooChatViewController(itemId: itemId, contentType: self.contentType)
+        UIApplication.shared.topMostViewController()?.present(vc, animated: true)
+    }
+    
+}
 
 @available(iOS 13.0, *)
 public struct GentooFloatingButtonView: View {
@@ -448,7 +475,7 @@ public struct GentooFloatingButtonView: View {
 }
 
 @available(iOS 13.0, *)
-private extension GentooFloatingButtonView {
+extension GentooFloatingButtonView {
     
     struct InnerView: UIViewRepresentable {
         
