@@ -10,7 +10,7 @@ import GentooSDK
 
 class ViewController: UIViewController {
     
-    let gentooFloatingButtonView = GentooFloatingButton()
+    let gentooFloatingButtonView = GentooPresentationFloatingButton()
     let tableView = UITableView()
     
     override func viewDidLoad() {
@@ -25,7 +25,6 @@ class ViewController: UIViewController {
         view.addSubview(tableView)
         
         gentooFloatingButtonView.translatesAutoresizingMaskIntoConstraints = false
-        gentooFloatingButtonView.addTarget(self, action: #selector(onTap), for: .touchUpInside)
         gentooFloatingButtonView.itemId = "752"
         
         view.addSubview(gentooFloatingButtonView)
@@ -45,12 +44,6 @@ class ViewController: UIViewController {
             gentooFloatingButtonView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             gentooFloatingButtonView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50)
         ])
-    }
-    
-    @objc func onTap() {
-        let vc = GentooChatViewController(itemId: gentooFloatingButtonView.itemId!,
-                                          contentType: gentooFloatingButtonView.contentType)
-        self.present(vc, animated: true)
     }
 }
 

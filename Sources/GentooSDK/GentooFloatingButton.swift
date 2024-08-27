@@ -8,6 +8,52 @@
 import UIKit
 import SwiftUI
 
+public final class GentooPresentationFloatingButton: GentooFloatingButton {
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.button.addTarget(self, action: #selector(handlePresentationFloatingButtonTapped), for: .touchUpInside)
+    }
+    
+    required public init?(coder: NSCoder) {
+        super.init(coder: coder)
+        self.button.addTarget(self, action: #selector(handlePresentationFloatingButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func handlePresentationFloatingButtonTapped() {
+        guard let itemId = self.itemId,
+              let targetViewController = UIApplication.shared.topMostViewController() else {
+            return
+        }
+        let chatViewController = GentooChatViewController(itemId: itemId, contentType: self.contentType)
+        targetViewController.present(chatViewController, animated: true)
+    }
+    
+}
+
+public final class GentooNavigationFloatingButton: GentooFloatingButton {
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.button.addTarget(self, action: #selector(handleNavigationFloatingButtonTapped), for: .touchUpInside)
+    }
+    
+    required public init?(coder: NSCoder) {
+        super.init(coder: coder)
+        self.button.addTarget(self, action: #selector(handleNavigationFloatingButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func handleNavigationFloatingButtonTapped() {
+        guard let itemId = self.itemId,
+              let targetViewController = UIApplication.shared.topMostViewController() else {
+            return
+        }
+        let chatViewController = GentooChatViewController(itemId: itemId, contentType: self.contentType)
+        targetViewController.navigationController?.pushViewController(chatViewController, animated: true)
+    }
+    
+}
+
 public class GentooFloatingButton: UIControl {
     
     public typealias ContentType = GentooSDK.ContentType
@@ -126,7 +172,7 @@ public class GentooFloatingButton: UIControl {
         return button
     }()
     
-    private let button: UIButton = {
+    let button: UIButton = {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = Constants.buttonContainerCornerRadius
