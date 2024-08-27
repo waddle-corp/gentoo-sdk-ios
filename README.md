@@ -28,9 +28,39 @@ end
 ```
 
 
-### Getting Started
+## Getting Started
 
-#### UIKit
+### UIKit
+
+#### Initializing GentooSDK in AppDelegate
+
+GentooSDK를 사용하기 위해서는 앱이 시작될 때 SDK를 초기화해야 합니다. 이를 위해 AppDelegate의 application(_:didFinishLaunchingWithOptions:) 메서드에서 초기화를 수행할 수 있습니다.
+
+```swift
+import UIKit
+import GentooSDK
+
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var window: UIWindow?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        // GentooSDK 초기화
+        let config = GentooSDK.Configruation(
+            udid: "your-device-udid",
+            authCode: "your-auth-code",
+            clientId: "your-client-id"
+        )
+        GentooSDK.initialize(with: config)
+
+        return true
+    }
+}
+```
+
+#### Floating Buttons
 
 GentooSDK는 두 가지 유형의 플로팅 버튼을 제공하여, `GentooChatViewController`를 모달로 표시하거나 네비게이션 스택에 추가할 수 있습니다.
 
@@ -92,7 +122,9 @@ class ViewController: UIViewController {
 }
 ```
 
-#### SwiftUI
+### SwiftUI
+
+#### Floating Buttons
 
 SwiftUI에서도 두 가지 유형의 플로팅 버튼을 제공합니다.
 
