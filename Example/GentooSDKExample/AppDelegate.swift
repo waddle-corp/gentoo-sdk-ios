@@ -13,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        GentooSDK.initialize(with: .init(udid: "E6252A58-XXXX-XXXX-XXXX-0E5CC7A321D8",
+        Gentoo.initialize(with: .init(udid: "E6252A58-XXXX-XXXX-XXXX-0E5CC7A321D8",
                                          authCode: "Token 32f5fe5e16f62ce8e25ba849xx0000000xx0000x",
                                          clientId: "dlst"))
         

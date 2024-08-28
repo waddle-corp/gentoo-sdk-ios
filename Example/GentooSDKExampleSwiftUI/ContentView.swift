@@ -11,14 +11,14 @@ import GentooSDK
 struct ContentView: View {
     
     enum NavigationDestination: Hashable {
-        case chatView(itemId: String, contentType: GentooSDK.ContentType)
+        case chatView(itemId: String, contentType: Gentoo.ContentType)
     }
     
     @State
     private var itemId: String? = "752"
     
     @State 
-    private var contentType: GentooSDK.ContentType = .normal
+    private var contentType: Gentoo.ContentType = .normal
     
     @State
     private var showsChatView: Bool = false
@@ -51,7 +51,7 @@ struct ContentView: View {
 }
 
 struct TableView: UIViewRepresentable {
-    @Binding var contentType: GentooSDK.ContentType
+    @Binding var contentType: Gentoo.ContentType
     
     func makeUIView(context: Context) -> UITableView {
         let tableView = UITableView()

@@ -7,18 +7,7 @@
 
 import Foundation
 
-protocol GentooSDKDelegate {
-    
-    typealias Comment = API.CommentResponse
-    typealias ItemID = String
-    typealias Product = String
-    
-    func didUpdate(comments: [ItemID: Comment?], gentooSDK: GentooSDK)
-    func didUpdate(primaryProducts: [ItemID: Product], gentooSDK: GentooSDK)
-    func didUpdate(secondaryProducts: [ItemID: Product], gentooSDK: GentooSDK)
-}
-
-public final class GentooSDK {
+public final class Gentoo {
     
     public struct Configruation: Sendable {
         public var udid: String
@@ -33,15 +22,15 @@ public final class GentooSDK {
     }
     
     public static func initialize(with configuration: Configruation) {
-        GentooSDK.shared.initialize(with: configuration)
+        Gentoo.shared.initialize(with: configuration)
     }
     
     public static var onError: ((any Swift.Error) -> Void)? {
-        get { GentooSDK.shared.queue.sync { GentooSDK.shared._errorHandler } }
-        set { GentooSDK.shared.queue.sync { GentooSDK.shared._errorHandler = newValue } }
+        get { Gentoo.shared.queue.sync { Gentoo.shared._errorHandler } }
+        set { Gentoo.shared.queue.sync { Gentoo.shared._errorHandler = newValue } }
     }
     
-    static let shared = GentooSDK()
+    static let shared = Gentoo()
     
     private var _configuration: Configruation?
     
@@ -156,7 +145,7 @@ public final class GentooSDK {
         }
     }
     
-    func preloadWebView(itemId: String, contentType: GentooSDK.ContentType) {
+    func preloadWebView(itemId: String, contentType: Gentoo.ContentType) {
         var needsPreload = false
         
         self.queue.sync {
@@ -175,20 +164,20 @@ public final class GentooSDK {
         }
     }
     
-    func discardPreloadedWebView(contentType: GentooSDK.ContentType) {
+    func discardPreloadedWebView(contentType: Gentoo.ContentType) {
         self.queue.sync {
             self._webViews[contentType] = nil
         }
     }
     
-    func publishError(_ error: GentooSDK.Error) {
+    func publishError(_ error: Gentoo.Error) {
         self.queue.async {
             self._errorHandler?(error)
         }
     }
 }
                               
-extension GentooSDK {
+extension Gentoo {
     enum Error: LocalizedError {
         case notInitialized
         
@@ -201,12 +190,12 @@ extension GentooSDK {
     }
 }
 
-extension GentooSDK {
+extension Gentoo {
     typealias Comment = API.CommentResponse
     typealias ItemID = String
 }
 
-extension GentooSDK {
+extension Gentoo {
     public enum ContentType {
         case normal
         case recommendation

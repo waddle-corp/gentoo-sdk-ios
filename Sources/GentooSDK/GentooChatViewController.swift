@@ -11,7 +11,7 @@ import WebKit
 
 public class GentooChatViewController: UIViewController {
     
-    public typealias ContentType = GentooSDK.ContentType
+    public typealias ContentType = Gentoo.ContentType
     
     public private(set) var contentType: ContentType = .normal
     
@@ -30,7 +30,7 @@ public class GentooChatViewController: UIViewController {
         return _isSheet ?? (navigationController?.viewControllers.firstIndex(of: self) == nil)
     }
     
-    public init(itemId: String, contentType: GentooSDK.ContentType) {
+    public init(itemId: String, contentType: Gentoo.ContentType) {
         self.itemId = itemId
         self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
@@ -83,9 +83,9 @@ public class GentooChatViewController: UIViewController {
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
-        GentooSDK.shared.discardPreloadedWebView(contentType: contentType)
+        Gentoo.shared.discardPreloadedWebView(contentType: contentType)
         if let itemId {
-            GentooSDK.shared.preloadWebView(itemId: itemId, contentType: contentType)
+            Gentoo.shared.preloadWebView(itemId: itemId, contentType: contentType)
         }
     }
     
@@ -128,7 +128,7 @@ public class GentooChatViewController: UIViewController {
     }
     
     private func setupGentooWebView() {
-        if let preloadedWebView = GentooSDK.shared.webViews[contentType],
+        if let preloadedWebView = Gentoo.shared.webViews[contentType],
            preloadedWebView.itemId == self.itemId,
            preloadedWebView.contentType == self.contentType {
             gentooWebView = preloadedWebView
@@ -256,9 +256,9 @@ extension GentooChatViewController: GentooWebViewDelegate {
 public struct GentooChatView: View {
     
     public let itemId: String
-    public let contentType: GentooSDK.ContentType
+    public let contentType: Gentoo.ContentType
     
-    public init(itemId: String, contentType: GentooSDK.ContentType) {
+    public init(itemId: String, contentType: Gentoo.ContentType) {
         self.itemId = itemId
         self.contentType = contentType
     }
@@ -270,7 +270,7 @@ public struct GentooChatView: View {
     struct Inner: UIViewControllerRepresentable {
         
         let itemId: String
-        let contentType: GentooSDK.ContentType
+        let contentType: Gentoo.ContentType
         let showsNavigationBar: Bool
         
         func makeUIViewController(context: Context) -> GentooChatViewController {

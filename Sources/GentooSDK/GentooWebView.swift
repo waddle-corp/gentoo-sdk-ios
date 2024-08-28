@@ -24,7 +24,7 @@ final class GentooWebView: UIView, WKNavigationDelegate {
     private let inputFocusEventListener = GentooInputFocusEventListener()
     
     private(set) var itemId: String?
-    var contentType: GentooSDK.ContentType = .normal
+    var contentType: Gentoo.ContentType = .normal
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -104,10 +104,10 @@ final class GentooWebView: UIView, WKNavigationDelegate {
             self.constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
         }
         
-        if let userId = GentooSDK.shared.userId {
+        if let userId = Gentoo.shared.userId {
             userIdHandler(userId)
         } else {
-            GentooSDK.shared.fetchUserID { result in
+            Gentoo.shared.fetchUserID { result in
                 switch result {
                 case .success(let userId):
                     userIdHandler(userId)
@@ -121,24 +121,24 @@ final class GentooWebView: UIView, WKNavigationDelegate {
     private func constructURL(itemId: String,
                               userId: String,
                               completionHandler: @escaping (Result<URL, Error>) -> Void) {
-        guard let configuration = GentooSDK.shared.configuration else {
-            completionHandler(.failure(GentooSDK.Error.notInitialized))
+        guard let configuration = Gentoo.shared.configuration else {
+            completionHandler(.failure(Gentoo.Error.notInitialized))
             return
         }
         
         var product: String?
         
         if contentType == .normal {
-            product = GentooSDK.shared.products[itemId]
+            product = Gentoo.shared.products[itemId]
         } else {
-            product = GentooSDK.shared.recommendedProducts[itemId]
+            product = Gentoo.shared.recommendedProducts[itemId]
         }
         
         if let product {
             let chatURL = URL.chatURL(clientId: configuration.clientId, userId: userId, product: product)
             completionHandler(.success(chatURL))
         } else {
-            GentooSDK.shared.fetchProduct(itemId: itemId,
+            Gentoo.shared.fetchProduct(itemId: itemId,
                                           userId: userId,
                                           target: contentType == .normal ? "this" : "needs") { result in
                 switch result {

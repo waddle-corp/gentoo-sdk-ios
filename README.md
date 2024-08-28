@@ -48,12 +48,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         // GentooSDK 초기화
-        let config = GentooSDK.Configruation(
+        let config = Gentoo.Configruation(
             udid: "your-device-udid",
             authCode: "your-auth-code",
             clientId: "your-client-id"
         )
-        GentooSDK.initialize(with: config)
+        Gentoo.initialize(with: config)
 
         return true
     }
@@ -144,7 +144,7 @@ struct ContentView: View {
     private var itemId: String? = "your-item-id"
     
     @State 
-    private var contentType: GentooSDK.ContentType = .normal
+    private var contentType: Gentoo.ContentType = .normal
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -170,14 +170,14 @@ import GentooSDK
 struct ContentView: View {
     
     enum NavigationDestination: Hashable {
-        case chatView(itemId: String, contentType: GentooSDK.ContentType)
+        case chatView(itemId: String, contentType: Gentoo.ContentType)
     }
     
     @State
     private var itemId: String? = "your-item-id"
     
     @State 
-    private var contentType: GentooSDK.ContentType = .normal
+    private var contentType: Gentoo.ContentType = .normal
     
     @State
     var path: NavigationPath = .init()

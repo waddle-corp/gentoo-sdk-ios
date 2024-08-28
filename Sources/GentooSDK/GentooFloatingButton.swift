@@ -56,7 +56,7 @@ public final class GentooNavigationFloatingButton: GentooFloatingButton {
 
 public class GentooFloatingButton: UIControl {
     
-    public typealias ContentType = GentooSDK.ContentType
+    public typealias ContentType = Gentoo.ContentType
     
     public private(set) var contentType: ContentType = .normal
     
@@ -65,12 +65,12 @@ public class GentooFloatingButton: UIControl {
         if type == .recommendation {
             triggerAnimation()
             if let itemId {
-                GentooSDK.shared.preloadWebView(itemId: itemId, contentType: .recommendation)
+                Gentoo.shared.preloadWebView(itemId: itemId, contentType: .recommendation)
             }
         }
     }
     
-    private var comment: GentooSDK.Comment? {
+    private var comment: Gentoo.Comment? {
         didSet {
             guard oldValue != comment else { return }
             triggerAnimation()
@@ -88,15 +88,15 @@ public class GentooFloatingButton: UIControl {
             
             guard let itemId = self.itemId else { return }
             
-            if let userId = GentooSDK.shared.userId {
+            if let userId = Gentoo.shared.userId {
                 self.loadComment(itemId: itemId, userId: userId)
             } else {
-                GentooSDK.shared.fetchUserID { result in
+                Gentoo.shared.fetchUserID { result in
                     switch result {
                     case .success(let userId):
                         self.loadComment(itemId: itemId, userId: userId)
                     case .failure(let error):
-                        GentooSDK.shared.publishError(.notInitialized)
+                        Gentoo.shared.publishError(.notInitialized)
                         print("Failed to fetch userId with error: \(error.localizedDescription)")
                     }
                 }
@@ -113,7 +113,7 @@ public class GentooFloatingButton: UIControl {
                         print("## COMMENT LOADED", comment)
                         self.comment = comment
                     }
-                    GentooSDK.shared.fetchProduct(itemId: itemId, userId: userId)
+                    Gentoo.shared.fetchProduct(itemId: itemId, userId: userId)
                 case .failure(let error):
                     print("Failed to load comment with error: \(error.localizedDescription)")
                 }
@@ -427,10 +427,10 @@ public struct GentooPresentationFloatingButtonView: View {
     var itemId: String?
     
     @Binding
-    var contentType: GentooSDK.ContentType
+    var contentType: Gentoo.ContentType
     
     public init(itemId: Binding<String?>,
-                contentType: Binding<GentooSDK.ContentType>) {
+                contentType: Binding<Gentoo.ContentType>) {
         self._itemId = itemId
         self._contentType = contentType
     }
@@ -455,12 +455,12 @@ public struct GentooFloatingButtonView: View {
     var itemId: String?
     
     @Binding 
-    var contentType: GentooSDK.ContentType
+    var contentType: Gentoo.ContentType
     
     public var action: () -> Void
     
     public init(itemId: Binding<String?>,
-                contentType: Binding<GentooSDK.ContentType>,
+                contentType: Binding<Gentoo.ContentType>,
                 action: @escaping () -> Void) {
         self._itemId = itemId
         self._contentType = contentType
@@ -480,7 +480,7 @@ extension GentooFloatingButtonView {
     struct InnerView: UIViewRepresentable {
         
         @Binding var itemId: String?
-        @Binding var contentType: GentooSDK.ContentType
+        @Binding var contentType: Gentoo.ContentType
         var action: () -> Void
         
         func makeUIView(context: Context) -> GentooFloatingButton {
