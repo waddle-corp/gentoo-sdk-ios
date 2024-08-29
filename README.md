@@ -18,12 +18,11 @@ GentooSDK는 iOS 애플리케이션에 인터랙티브 AI 에이전트인 Gentoo
 #### CocoaPods
 
 ```ruby
-source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'GentooSDK', '~> 1.0.0'
+  pod 'GentooSDK', :git => 'https://github.com/waddle-corp/gentoo-sdk-ios'
 end
 ```
 
