@@ -205,6 +205,26 @@ struct ContentView: View {
 }
 ```
 
+### Content Type
+
+현재 상품과 관련된 다른 상품을 추천하고 싶다면 아래와 같이 content type을 recommendation으로 변경할 수 있습니다.
+
+#### UIKit
+
+```swift
+gentooFloatingButtonView.setContentType(.recommendation)
+```
+
+#### SwiftUI
+
+```swift
+// body
+GentooFloatingButtonView(itemId: $itemId, contentType: $contentType)
+
+// somewhere
+contentType = .recommendation
+```
+
 
 ### License
 
