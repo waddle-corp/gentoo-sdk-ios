@@ -95,19 +95,12 @@ public final class Gentoo {
         }
         
         DispatchQueue.global(qos: .userInteractive).async {
-            let api: API
-#if DEBUG
-            api = .dev
-#else
-            api = .prod
-#endif
-            api.fetchUserID(udid: configuration.udid,
+            API.prod.fetchUserID(udid: configuration.udid,
                                 authCode: configuration.authCode) { result in
                 switch result {
                 case let .success(userId):
                     self.queue.async {
                         self._userId = userId
-                        print("## GENTOO SDK HAS BEEN INITIALIZED SUCCESSFULLY: \(userId)")
                     }
                     completionHandler?(.success(userId))
                 case let .failure(error):
@@ -131,16 +124,9 @@ public final class Gentoo {
     func fetchProduct(itemId: String, userId: String, target: String,
                       completionHandler: ((Result<String, any Swift.Error>) -> Void)? = nil) {
         DispatchQueue.global(qos: .userInteractive).async {
-            let api: API
-#if DEBUG
-            api = .dev
-#else
-            api = .prod
-#endif
-            api.fetchProduct(itemId: itemId, userId: userId, target: target) { result in
+            API.prod.fetchProduct(itemId: itemId, userId: userId, target: target) { result in
                 switch result {
                 case .success(let product):
-                    print("## PRODUCT(\(target)) LOADED ", product)
                     self.queue.async {
                         if target == "this" {
                             self._products[itemId] = product
