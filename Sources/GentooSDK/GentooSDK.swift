@@ -95,7 +95,13 @@ public final class Gentoo {
         }
         
         DispatchQueue.global(qos: .userInteractive).async {
-            API.dev.fetchUserID(udid: configuration.udid,
+            let api: API
+#if DEBUG
+            api = .dev
+#else
+            api = .prod
+#endif
+            api.fetchUserID(udid: configuration.udid,
                                 authCode: configuration.authCode) { result in
                 switch result {
                 case let .success(userId):
@@ -125,7 +131,13 @@ public final class Gentoo {
     func fetchProduct(itemId: String, userId: String, target: String,
                       completionHandler: ((Result<String, any Swift.Error>) -> Void)? = nil) {
         DispatchQueue.global(qos: .userInteractive).async {
-            API.dev.fetchProduct(itemId: itemId, userId: userId, target: target) { result in
+            let api: API
+#if DEBUG
+            api = .dev
+#else
+            api = .prod
+#endif
+            api.fetchProduct(itemId: itemId, userId: userId, target: target) { result in
                 switch result {
                 case .success(let product):
                     print("## PRODUCT(\(target)) LOADED ", product)

@@ -106,7 +106,13 @@ public class GentooFloatingButton: UIControl {
     
     private func loadComment(itemId: String, userId: String) {
         DispatchQueue.global(qos: .userInteractive).async {
-            API.dev.fetchComment(itemId: itemId, userId: userId) { result in
+            let api: API
+#if DEBUG
+            api = .dev
+#else
+            api = .prod
+#endif
+            api.fetchComment(itemId: itemId, userId: userId) { result in
                 switch result {
                 case .success(let comment):
                     DispatchQueue.main.async {
