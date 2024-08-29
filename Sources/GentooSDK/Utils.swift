@@ -54,13 +54,13 @@ enum Font {
 
 final class FontProvider {
     static func registerFont(withName name: String) {
-        let bundle = Bundle(for: FontProvider.self)
+        let bundle = Bundle.module
         guard let url = bundle.url(forResource: name, withExtension: "otf"),
               let data = try? Data(contentsOf: url),
               let provider = CGDataProvider(data: data as CFData),
               let font = CGFont(provider) else {
             return
-        }
+        } 
         var error: Unmanaged<CFError>?
         CTFontManagerRegisterGraphicsFont(font, &error)
     }
@@ -68,7 +68,7 @@ final class FontProvider {
 
 final class ImageProvider {
     static func loadImage(named name: String) -> UIImage? {
-        let bundle = Bundle(for: ImageProvider.self)
+        let bundle = Bundle.module
         return UIImage(named: name, in: bundle, compatibleWith: nil)
     }
 }
