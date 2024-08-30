@@ -54,7 +54,12 @@ enum Font {
 
 final class FontProvider {
     static func registerFont(withName name: String) {
-        let bundle = Bundle.module
+        let bundle: Bundle
+#if SWIFT_PACKAGE
+        bundle = .module
+#else
+        bundle = Bundle(for: FontProvider.self)
+#endif
         guard let url = bundle.url(forResource: name, withExtension: "otf"),
               let data = try? Data(contentsOf: url),
               let provider = CGDataProvider(data: data as CFData),
@@ -68,7 +73,12 @@ final class FontProvider {
 
 final class ImageProvider {
     static func loadImage(named name: String) -> UIImage? {
-        let bundle = Bundle.module
+        let bundle: Bundle
+#if SWIFT_PACKAGE
+        bundle = .module
+#else
+        bundle = Bundle(for: ImageProvider.self)
+#endif
         return UIImage(named: name, in: bundle, compatibleWith: nil)
     }
 }
