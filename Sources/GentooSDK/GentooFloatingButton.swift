@@ -96,8 +96,7 @@ public class GentooFloatingButton: UIControl {
                     case .success(let userId):
                         self.loadComment(itemId: itemId, userId: userId)
                     case .failure(let error):
-                        Gentoo.shared.publishError(.notInitialized)
-                        print("Failed to fetch userId with error: \(error.localizedDescription)")
+                        Gentoo.shared.publishLog(level: .error, message: "Failed to fetch userId with error: \(error.localizedDescription)")
                     }
                 }
             }
@@ -112,9 +111,10 @@ public class GentooFloatingButton: UIControl {
                     DispatchQueue.main.async {
                         self.comment = comment
                     }
+                    Gentoo.shared.publishLog(level: .info, message: "Successfully fetched comment for itemId: \(itemId)")
                     Gentoo.shared.fetchProduct(itemId: itemId, userId: userId)
                 case .failure(let error):
-                    print("Failed to load comment with error: \(error.localizedDescription)")
+                    Gentoo.shared.publishLog(level: .error, message: "Failed to fetch comment with error: \(error.localizedDescription)")
                 }
             }
         }

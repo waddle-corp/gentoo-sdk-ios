@@ -15,12 +15,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        Gentoo.initialize(with: .init(udid: "E6252A58-XXXX-XXXX-XXXX-0E5CC7A321D8",
-                                         authCode: "Token 32f5fe5e16f62ce8e25ba849xx0000000xx0000x",
-                                         clientId: "dlst"))
+        Gentoo.initialize(with: .init(udid: "d02a7e31-3727-4e72-8768-88d06d313eed",
+                                      authCode: "Token 65ca7bbe5995ac373b06bf3a2c09962a65403245",
+                                      clientId: "dlst"))
         
-        Gentoo.onError = {
-            print($0.localizedDescription)
+        Gentoo.onLog = {
+            print("[Gentoo]", $0.message)
         }
         
         return true

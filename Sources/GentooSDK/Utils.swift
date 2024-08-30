@@ -118,3 +118,17 @@ extension UIApplication {
     return UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController?.topMostViewController()
   }
 }
+
+struct StringError: LocalizedError {
+    
+    let errorMessage: String
+    
+    init(_ errorMessage: String) {
+        self.errorMessage = errorMessage
+    }
+    
+    var errorDescription: String? {
+        self.errorMessage
+    }
+    
+}

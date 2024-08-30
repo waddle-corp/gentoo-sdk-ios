@@ -9,8 +9,6 @@ import Foundation
 
 enum APIError: Error {
     case invalidResponse
-    case serverError(String)
-    case decodingError
 }
 
 struct API {
@@ -49,7 +47,7 @@ struct API {
         return apiURL.appendingPathComponent("/recommend")
     }
     
-    func fetchUserID(udid: String, authCode: String, completion: @escaping (Result<String, APIError>) -> Void) {
+    func fetchUserID(udid: String, authCode: String, completion: @escaping (Result<String, any Swift.Error>) -> Void) {
         var request = URLRequest(url: authURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -59,12 +57,12 @@ struct API {
         
         session.dataTask(with: request) { data, response, error in
             guard error == nil else {
-                completion(.failure(.serverError(error!.localizedDescription)))
+                completion(.failure(error!))
                 return
             }
             
             guard let data = data else {
-                completion(.failure(.invalidResponse))
+                completion(.failure(APIError.invalidResponse))
                 return
             }
             
@@ -72,24 +70,28 @@ struct API {
                 let authResponse = try JSONDecoder().decode(AuthResponse.self, from: data)
                 completion(.success(authResponse.body.randomId))
             } catch {
-                completion(.failure(.decodingError))
+                if let body = String(data: data, encoding: .utf8) {
+                    completion(.failure(StringError(body)))
+                } else {
+                    completion(.failure(error))
+                }
             }
         }.resume()
     }
     
-    func fetchComment(itemId: String, userId: String, completion: @escaping (Result<CommentResponse, APIError>) -> Void) {
+    func fetchComment(itemId: String, userId: String, completion: @escaping (Result<CommentResponse, any Swift.Error>) -> Void) {
         let url = recommendURL
             .appending("itemId", value: itemId)
             .appending("userId", value: userId)
         
         session.dataTask(with: url) { data, response, error in
             guard error == nil else {
-                completion(.failure(.serverError(error!.localizedDescription)))
+                completion(.failure(error!))
                 return
             }
             
             guard let data = data else {
-                completion(.failure(.invalidResponse))
+                completion(.failure(APIError.invalidResponse))
                 return
             }
             
@@ -97,13 +99,17 @@ struct API {
                 let commentResponse = try JSONDecoder().decode(CommentResponse.self, from: data)
                 completion(.success(commentResponse))
             } catch {
-                completion(.failure(.decodingError))
+                if let body = String(data: data, encoding: .utf8) {
+                    completion(.failure(StringError(body)))
+                } else {
+                    completion(.failure(error))
+                }
             }
             
         }.resume()
     }
     
-    func fetchProduct(itemId: String, userId: String, target: String, completion: @escaping (Result<String, APIError>) -> Void) {
+    func fetchProduct(itemId: String, userId: String, target: String, completion: @escaping (Result<String, any Swift.Error>) -> Void) {
         var request = URLRequest(url: recommendURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -119,13 +125,13 @@ struct API {
         
         session.dataTask(with: request) { data, response, error in
             guard error == nil else {
-                completion(.failure(.serverError(error!.localizedDescription)))
+                completion(.failure(error!))
                 return
             }
             
             guard let data = data,
                   let product = String(data: data, encoding: .utf8) else {
-                completion(.failure(.invalidResponse))
+                completion(.failure(APIError.invalidResponse))
                 return
             }
             
