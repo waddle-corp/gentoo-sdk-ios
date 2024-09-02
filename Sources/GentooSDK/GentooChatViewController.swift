@@ -30,7 +30,7 @@ public class GentooChatViewController: UIViewController {
         return _isSheet ?? (navigationController?.viewControllers.firstIndex(of: self) == nil)
     }
     
-    public init(itemId: String, contentType: Gentoo.ContentType) {
+    public init(itemId: String?, contentType: Gentoo.ContentType) {
         self.itemId = itemId
         self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
@@ -128,18 +128,17 @@ public class GentooChatViewController: UIViewController {
     }
     
     private func setupGentooWebView() {
-        if let preloadedWebView = Gentoo.shared.webViews[contentType],
+        if isSheet, let preloadedWebView = Gentoo.shared.webViews[contentType],
            preloadedWebView.itemId == self.itemId,
            preloadedWebView.contentType == self.contentType {
             gentooWebView = preloadedWebView
+            gentooWebView.isSheet = isSheet
             gentooWebView.reloadWebPage()
         } else {
             gentooWebView = GentooWebView()
             gentooWebView.contentType = contentType
-            
-            if let itemId = itemId {
-                gentooWebView.loadWebPage(itemId: itemId)
-            }
+            gentooWebView.isSheet = isSheet
+            gentooWebView.loadWebPage(itemId: itemId)
         }
         
         gentooWebView.delegate = self
@@ -162,6 +161,7 @@ public class GentooChatViewController: UIViewController {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .orange.withAlphaComponent(0.7)
         
         view.addSubview(activityIndicator)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false

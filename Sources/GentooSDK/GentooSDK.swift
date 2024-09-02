@@ -46,7 +46,7 @@ public final class Gentoo {
     
     private var _configuration: Configruation?
     
-    private static var enablesWebviewPreloading: Bool { true }
+    private static var enablesWebviewPreloading: Bool { false }
     
     var configuration: Configruation? {
         self.queue.sync { _configuration }

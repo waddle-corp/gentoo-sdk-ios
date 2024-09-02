@@ -23,6 +23,8 @@ final class GentooWebView: UIView, WKNavigationDelegate {
     private var isReloading = false
     private let inputFocusEventListener = GentooInputFocusEventListener()
     
+    var isSheet: Bool = true
+    
     private(set) var itemId: String?
     var contentType: Gentoo.ContentType = .normal
     
@@ -69,7 +71,7 @@ final class GentooWebView: UIView, WKNavigationDelegate {
         ])
     }
     
-    public func loadWebPage(itemId: String) {
+    public func loadWebPage(itemId: String?) {
         self.itemId = itemId
         constructURL(itemId: itemId) { result in
             switch result {
@@ -98,7 +100,7 @@ final class GentooWebView: UIView, WKNavigationDelegate {
         webView.evaluateJavaScript(scrollToBottomScript, completionHandler: nil)
     }
     
-    private func constructURL(itemId: String, completionHandler: @escaping (Result<URL, Error>) -> Void) {
+    private func constructURL(itemId: String?, completionHandler: @escaping (Result<URL, Error>) -> Void) {
         
         let userIdHandler: (String) -> Void = { userId in
             self.constructURL(itemId: itemId, userId: userId, completionHandler: completionHandler)
@@ -118,11 +120,17 @@ final class GentooWebView: UIView, WKNavigationDelegate {
         }
     }
     
-    private func constructURL(itemId: String,
+    private func constructURL(itemId: String?,
                               userId: String,
                               completionHandler: @escaping (Result<URL, Error>) -> Void) {
         guard let configuration = Gentoo.shared.configuration else {
             completionHandler(.failure(Gentoo.Error.notInitialized))
+            return
+        }
+        
+        guard isSheet, let itemId else {
+            let globalChatURL = URL.globalChatURL(clientId: configuration.clientId, userId: userId)
+            completionHandler(.success(globalChatURL))
             return
         }
         
@@ -173,6 +181,14 @@ extension GentooWebView: GentooInputFocusEventListenerDelegate {
 }
 
 private extension URL {
+    
+    static func globalChatURL(clientId: String, userId: String) -> Self {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "dev-demo.gentooai.com"
+        components.path = "/\(clientId)/\(userId)"
+        return components.url!
+    }
     
     static func chatURL(clientId: String, userId: String, product: String) -> Self {
         var components = URLComponents()

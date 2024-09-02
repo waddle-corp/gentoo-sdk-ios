@@ -21,8 +21,7 @@ public final class GentooPresentationFloatingButton: GentooFloatingButton {
     }
     
     @objc private func handlePresentationFloatingButtonTapped() {
-        guard let itemId = self.itemId,
-              let targetViewController = UIApplication.shared.topMostViewController() else {
+        guard let targetViewController = UIApplication.shared.topMostViewController() else {
             return
         }
         let chatViewController = GentooChatViewController(itemId: itemId, contentType: self.contentType)
@@ -44,8 +43,7 @@ public final class GentooNavigationFloatingButton: GentooFloatingButton {
     }
     
     @objc private func handleNavigationFloatingButtonTapped() {
-        guard let itemId = self.itemId,
-              let targetViewController = UIApplication.shared.topMostViewController() else {
+        guard let targetViewController = UIApplication.shared.topMostViewController() else {
             return
         }
         let chatViewController = GentooChatViewController(itemId: itemId, contentType: self.contentType)
