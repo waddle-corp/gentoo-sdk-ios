@@ -33,10 +33,12 @@ public final class Gentoo {
         public let message: String
     }
     
+    /// Gentoo SDK를 초기화합니다. App이 초기화될 때 호출하는 것을 권장합니다.
     public static func initialize(with configuration: Configruation) {
         Gentoo.shared.initialize(with: configuration)
     }
     
+    /// Gentoo SDK의 로그를 확인할 수 있는 Callback입니다.
     public static var onLog: ((Log) -> Void)? {
         get { Gentoo.shared.queue.sync { Gentoo.shared._logHandler } }
         set { Gentoo.shared.queue.sync { Gentoo.shared._logHandler = newValue } }

@@ -58,6 +58,10 @@ public class GentooFloatingButton: UIControl {
     
     public private(set) var contentType: ContentType = .normal
     
+    
+    /// ContentType을 설정하여 현재 입력된 버튼의 텍스트가 갱신되게 할 수 있습니다.
+    ///
+    /// - Parameter type: `.normal`은 현재 item을, `.recommendation`은 추천 item을 표시합니다.
     public func setContentType(_ type: ContentType) {
         self.contentType = type
         if type == .recommendation {
@@ -75,6 +79,7 @@ public class GentooFloatingButton: UIControl {
         }
     }
     
+    /// 표시할 item의 식별자를 입력합니다.
     public var itemId: String? {
         didSet {
             loadCommentIfNeeded()
